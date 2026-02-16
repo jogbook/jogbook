@@ -4,9 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProfileBySlug } from "@/lib/supabase-helpers";
 import { BookingForm } from "@/components/BookingForm";
 import { MapPin, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -27,18 +25,18 @@ export default function PublicProfile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-neutral-500">Loading...</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-2">DJ Not Found</h1>
-          <p className="text-muted-foreground">This profile doesn't exist.</p>
+          <h1 className="text-4xl font-bold text-neutral-900 mb-2">DJ Not Found</h1>
+          <p className="text-neutral-500">This profile doesn't exist.</p>
         </div>
       </div>
     );
@@ -48,31 +46,25 @@ export default function PublicProfile() {
   const socialLinks = Array.isArray(profile.social_links) ? (profile.social_links as any[]) : [];
   const pastEvents = Array.isArray(profile.past_events) ? (profile.past_events as any[]) : [];
 
-  // Find a SoundCloud link for embedding
-  const soundcloudLink = musicLinks.find(
-    (l) => l.url?.includes("soundcloud.com")
-  );
-  const otherMusicLinks = musicLinks.filter(
-    (l) => !l.url?.includes("soundcloud.com")
-  );
+  const soundcloudLink = musicLinks.find((l) => l.url?.includes("soundcloud.com"));
+  const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
 
   return (
-    <div className="min-h-screen bg-foreground text-background">
-      {/* Hero banner area */}
+    <div className="min-h-screen bg-white text-neutral-900">
+      {/* Hero banner */}
       {profile.photo_url && (
-        <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden relative bg-muted">
+        <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden relative bg-neutral-200">
           <img
             src={profile.photo_url}
             alt={profile.name}
             className="w-full h-full object-cover object-top"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
         </div>
       )}
 
-      {/* Profile info overlapping banner */}
-      <div className="max-w-3xl mx-auto px-6 relative">
-        <div className="flex items-end gap-4 -mt-16 relative z-10">
+      {/* Profile info */}
+      <div className="max-w-5xl mx-auto px-6 relative">
+        <div className="flex items-end gap-4 -mt-14 relative z-10">
           {profile.photo_url && (
             <img
               src={profile.photo_url}
@@ -80,63 +72,61 @@ export default function PublicProfile() {
               className="w-20 h-20 rounded-lg object-cover border-[3px] border-primary shadow-lg"
             />
           )}
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight pb-1">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 pb-1">
             {profile.name}
           </h1>
         </div>
 
         {profile.location && (
-          <p className="flex items-center gap-1.5 text-background/60 mt-3 text-sm">
+          <p className="flex items-center gap-1.5 text-neutral-500 mt-3 text-sm">
             <MapPin size={14} /> {profile.location}
           </p>
         )}
 
         {profile.bio && (
-          <p className="text-background/70 mt-3 text-sm max-w-lg">{profile.bio}</p>
+          <p className="text-neutral-600 mt-3 text-sm max-w-lg">{profile.bio}</p>
         )}
 
-        <Separator className="my-6 bg-primary/40" />
+        <hr className="my-6 border-primary/60" />
 
         {/* Genre */}
         {profile.genres && profile.genres.length > 0 && (
           <>
             <section>
-              <h2 className="text-sm font-bold mb-3">Genre</h2>
+              <h2 className="text-sm font-bold mb-3 text-neutral-900">Genre</h2>
               <div className="flex flex-wrap gap-2">
                 {profile.genres.map((g: string) => (
-                  <Badge
+                  <span
                     key={g}
-                    className="bg-primary text-primary-foreground font-medium text-xs px-3 py-1 rounded-full"
+                    className="border border-primary text-primary text-xs font-semibold px-3 py-1 rounded-full"
                   >
                     {g}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             </section>
-            <Separator className="my-6 bg-primary/40" />
+            <hr className="my-6 border-primary/60" />
           </>
         )}
 
-        {/* Press Kit / Past Events */}
+        {/* Press Kit */}
         {pastEvents.length > 0 && (
           <>
             <section>
-              <h2 className="text-sm font-bold mb-3">Press Kit</h2>
-              <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-neutral-900">Press Kit</h2>
+                <ExternalLink size={16} className="text-neutral-400" />
+              </div>
+              <div className="mt-2 space-y-1">
                 {pastEvents.map((ev: any, i: number) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between py-2 text-sm"
-                  >
+                  <div key={i} className="flex items-center justify-between py-2 text-sm">
                     <span>{ev.name}</span>
-                    {ev.date && (
-                      <span className="text-background/50 text-xs">{ev.date}</span>
-                    )}
+                    {ev.date && <span className="text-neutral-400 text-xs">{ev.date}</span>}
                   </div>
                 ))}
               </div>
             </section>
-            <Separator className="my-6 bg-primary/40" />
+            <hr className="my-6 border-primary/60" />
           </>
         )}
 
@@ -144,8 +134,8 @@ export default function PublicProfile() {
         {soundcloudLink && (
           <>
             <section>
-              <h2 className="text-sm font-bold mb-3">SoundCloud</h2>
-              <div className="rounded-lg overflow-hidden bg-background/5 border border-background/10">
+              <h2 className="text-sm font-bold mb-3 text-neutral-900">SoundCloud</h2>
+              <div className="rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200">
                 <iframe
                   width="100%"
                   height="166"
@@ -157,31 +147,31 @@ export default function PublicProfile() {
                 />
               </div>
             </section>
-            <Separator className="my-6 bg-primary/40" />
+            <hr className="my-6 border-primary/60" />
           </>
         )}
 
-        {/* Other music links */}
+        {/* Music links */}
         {otherMusicLinks.length > 0 && (
           <>
             <section>
-              <h2 className="text-sm font-bold mb-3">Music</h2>
-              <div className="space-y-1">
+              <h2 className="text-sm font-bold mb-3 text-neutral-900">Music</h2>
+              <div className="space-y-0">
                 {otherMusicLinks.map((link: any, i: number) => (
                   <a
                     key={i}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between py-2 text-sm hover:text-primary transition-colors"
+                    className="flex items-center justify-between py-3 text-sm text-neutral-700 hover:text-primary transition-colors"
                   >
                     <span>{link.label || link.url}</span>
-                    <ExternalLink size={14} className="text-background/40" />
+                    <ExternalLink size={16} className="text-neutral-400" />
                   </a>
                 ))}
               </div>
             </section>
-            <Separator className="my-6 bg-primary/40" />
+            <hr className="my-6 border-primary/60" />
           </>
         )}
 
@@ -189,31 +179,30 @@ export default function PublicProfile() {
         {socialLinks.length > 0 && (
           <>
             <section>
-              <h2 className="text-sm font-bold mb-3">Social links</h2>
-              <div className="space-y-1">
+              <h2 className="text-sm font-bold mb-3 text-neutral-900">Social links</h2>
+              <div className="space-y-0">
                 {socialLinks.map((link: any, i: number) => (
                   <a
                     key={i}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between py-2.5 text-sm hover:text-primary transition-colors"
+                    className="flex items-center justify-between py-3 text-sm text-neutral-700 hover:text-primary transition-colors"
                   >
                     <span>{link.label}</span>
-                    <ExternalLink size={14} className="text-background/40" />
+                    <ExternalLink size={16} className="text-neutral-400" />
                   </a>
                 ))}
               </div>
             </section>
-            <Separator className="my-6 bg-primary/40" />
+            <hr className="my-6 border-primary/60" />
           </>
         )}
 
-        {/* Spacer for sticky button */}
         <div className="h-24" />
       </div>
 
-      {/* Sticky bottom bar with Submit Request */}
+      {/* Sticky bottom bar - dark with green button */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border px-6 py-3 flex items-center justify-between">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
