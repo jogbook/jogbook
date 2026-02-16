@@ -7,16 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
-import { ExternalLink, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Plus, Trash2, Copy, Share2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function ProfileEditor() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const { data: profile, isLoading } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
   const [genres, setGenres] = useState("");
   const [location, setLocation] = useState("");
   const [slug, setSlug] = useState("");
@@ -30,6 +34,7 @@ export default function ProfileEditor() {
       setName(profile.name || "");
       setBio(profile.bio || "");
       setPhotoUrl(profile.photo_url || "");
+      setBannerUrl((profile as any).banner_url || "");
       setGenres((profile.genres || []).join(", "));
       setLocation(profile.location || "");
       setSlug(profile.slug || "");
@@ -47,6 +52,7 @@ export default function ProfileEditor() {
         name,
         bio,
         photo_url: photoUrl,
+        banner_url: bannerUrl,
         genres: genres.split(",").map((g) => g.trim()).filter(Boolean),
         location,
         slug,
@@ -62,6 +68,15 @@ export default function ProfileEditor() {
     setSaving(false);
   };
 
+  const publicUrl = slug ? `${window.location.origin}/dj/${slug}` : "";
+
+  const copyLink = () => {
+    if (publicUrl) {
+      navigator.clipboard.writeText(publicUrl);
+      toast.success("Profile link copied!");
+    }
+  };
+
   if (isLoading) return <DashboardLayout><div className="p-8 text-muted-foreground">Loading...</div></DashboardLayout>;
 
   return (
@@ -72,13 +87,66 @@ export default function ProfileEditor() {
             <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
             <p className="text-muted-foreground mt-1">Edit your DJ profile</p>
           </div>
-          {slug && (
-            <a href={`/dj/${slug}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm text-primary hover:underline">
-              <ExternalLink size={14} /> Preview
-            </a>
-          )}
+          <div className="flex items-center gap-2">
+            {publicUrl && (
+              <>
+                <Button size="sm" variant="outline" onClick={copyLink} className="gap-1.5">
+                  <Copy size={14} /> Copy Link
+                </Button>
+                <a href={`/dj/${slug}`} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="outline" className="gap-1.5">
+                    <ExternalLink size={14} /> Preview
+                  </Button>
+                </a>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Shareable link banner */}
+        {publicUrl && (
+          <div className="flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3">
+            <Share2 size={16} className="text-primary shrink-0" />
+            <p className="text-sm text-muted-foreground truncate flex-1">
+              Share your profile: <span className="text-primary font-medium">{publicUrl}</span>
+            </p>
+            <Button size="sm" variant="ghost" onClick={copyLink} className="shrink-0">
+              <Copy size={14} />
+            </Button>
+          </div>
+        )}
+
+        <Card>
+          <CardHeader><CardTitle>Photos</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Profile Photo</Label>
+              {user && (
+                <ImageUpload
+                  value={photoUrl}
+                  onChange={setPhotoUrl}
+                  userId={user.id}
+                  folder="photos"
+                  aspectRatio="square"
+                  label="Upload Photo"
+                />
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Banner Image</Label>
+              {user && (
+                <ImageUpload
+                  value={bannerUrl}
+                  onChange={setBannerUrl}
+                  userId={user.id}
+                  folder="banners"
+                  aspectRatio="banner"
+                  label="Upload Banner"
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader><CardTitle>Basic Info</CardTitle></CardHeader>
@@ -90,10 +158,6 @@ export default function ProfileEditor() {
             <div className="space-y-2">
               <Label>Bio</Label>
               <Textarea value={bio} onChange={(e) => setBio(e.target.value)} className="bg-background min-h-[100px]" />
-            </div>
-            <div className="space-y-2">
-              <Label>Photo URL</Label>
-              <Input value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} placeholder="https://..." className="bg-background" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
