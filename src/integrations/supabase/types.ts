@@ -63,6 +63,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          banner_url: string | null
           bio: string | null
           created_at: string
           genres: string[] | null
@@ -78,6 +79,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           genres?: string[] | null
@@ -93,6 +95,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           genres?: string[] | null

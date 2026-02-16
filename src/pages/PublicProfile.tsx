@@ -45,6 +45,7 @@ export default function PublicProfile() {
   const musicLinks = Array.isArray(profile.music_links) ? (profile.music_links as any[]) : [];
   const socialLinks = Array.isArray(profile.social_links) ? (profile.social_links as any[]) : [];
   const pastEvents = Array.isArray(profile.past_events) ? (profile.past_events as any[]) : [];
+  const bannerUrl = (profile as any).banner_url || "";
 
   const soundcloudLink = musicLinks.find((l) => l.url?.includes("soundcloud.com"));
   const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
@@ -52,10 +53,10 @@ export default function PublicProfile() {
   return (
     <div className="min-h-screen bg-white text-neutral-900">
       {/* Hero banner */}
-      {profile.photo_url && (
+      {(bannerUrl || profile.photo_url) && (
         <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden relative bg-neutral-200">
           <img
-            src={profile.photo_url}
+            src={bannerUrl || profile.photo_url}
             alt={profile.name}
             className="w-full h-full object-cover object-top"
           />
@@ -202,7 +203,7 @@ export default function PublicProfile() {
         <div className="h-24" />
       </div>
 
-      {/* Sticky bottom bar - dark with green button */}
+      {/* Sticky bottom bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border px-6 py-3 flex items-center justify-between">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
