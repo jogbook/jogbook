@@ -13,6 +13,133 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+function HeroBanner({ bannerUrl, photoUrl, name }: { bannerUrl?: string; photoUrl?: string; name: string }) {
+  return (
+    <>
+      {(bannerUrl || photoUrl) && (
+        <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden relative bg-card">
+          <img
+            src={bannerUrl || photoUrl}
+            alt={name}
+            className="w-full h-full object-cover object-top"
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+function ProfileHeader({ profile }: { profile: any }) {
+  return (
+    <div className="flex items-end gap-4 -mt-14 relative z-10">
+      {profile.photo_url && (
+        <img
+          src={profile.photo_url}
+          alt={profile.name}
+          className="w-20 h-20 rounded-lg object-cover border-[3px] border-primary shadow-lg"
+        />
+      )}
+      <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground pb-1">
+        {profile.name}
+      </h1>
+    </div>
+  );
+}
+
+function GenreSection({ genres }: { genres: string[] }) {
+  if (!genres || genres.length === 0) return null;
+  return (
+    <>
+      <section>
+        <h2 className="text-sm font-bold mb-3 text-foreground">Genre</h2>
+        <div className="flex flex-wrap gap-2">
+          {genres.map((g: string) => (
+            <span
+              key={g}
+              className="border border-primary text-primary text-xs font-semibold px-3 py-1 rounded-full"
+            >
+              {g}
+            </span>
+          ))}
+        </div>
+      </section>
+      <hr className="my-6 border-primary/60" />
+    </>
+  );
+}
+
+function PressKitSection({ pastEvents }: { pastEvents: any[] }) {
+  if (pastEvents.length === 0) return null;
+  return (
+    <>
+      <section>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-foreground">Press Kit</h2>
+          <ExternalLink size={16} className="text-muted-foreground" />
+        </div>
+        <div className="mt-2 space-y-1">
+          {pastEvents.map((ev: any, i: number) => (
+            <div key={i} className="flex items-center justify-between py-2 text-sm">
+              <span className="text-foreground">{ev.name}</span>
+              {ev.date && <span className="text-muted-foreground text-xs">{ev.date}</span>}
+            </div>
+          ))}
+        </div>
+      </section>
+      <hr className="my-6 border-primary/60" />
+    </>
+  );
+}
+
+function SoundCloudSection({ soundcloudLink }: { soundcloudLink: any }) {
+  if (!soundcloudLink) return null;
+  return (
+    <>
+      <section>
+        <h2 className="text-sm font-bold mb-3 text-foreground">SoundCloud</h2>
+        <div className="rounded-lg overflow-hidden bg-secondary border border-border">
+          <iframe
+            width="100%"
+            height="166"
+            scrolling="no"
+            frameBorder="no"
+            allow="autoplay"
+            src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudLink.url)}&color=%2300ff00&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`}
+            className="w-full"
+          />
+        </div>
+      </section>
+      <hr className="my-6 border-primary/60" />
+    </>
+  );
+}
+
+function LinksSection({ title, links }: { title: string; links: any[] }) {
+  if (links.length === 0) return null;
+  return (
+    <>
+      <section>
+        <h2 className="text-sm font-bold mb-3 text-foreground">{title}</h2>
+        <div className="space-y-0">
+          {links.map((link: any, i: number) => (
+            <a
+              key={i}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between py-3 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              <span>{link.label || link.url}</span>
+              <ExternalLink size={16} className="text-muted-foreground" />
+            </a>
+          ))}
+        </div>
+      </section>
+      <hr className="my-6 border-primary/60" />
+    </>
+  );
+}
+
 export default function PublicProfile() {
   const { slug } = useParams<{ slug: string }>();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -25,18 +152,18 @@ export default function PublicProfile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-neutral-500">Loading...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-neutral-900 mb-2">DJ Not Found</h1>
-          <p className="text-neutral-500">This profile doesn't exist.</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">DJ Not Found</h1>
+          <p className="text-muted-foreground">This profile doesn't exist.</p>
         </div>
       </div>
     );
@@ -45,160 +172,35 @@ export default function PublicProfile() {
   const musicLinks = Array.isArray(profile.music_links) ? (profile.music_links as any[]) : [];
   const socialLinks = Array.isArray(profile.social_links) ? (profile.social_links as any[]) : [];
   const pastEvents = Array.isArray(profile.past_events) ? (profile.past_events as any[]) : [];
-  const bannerUrl = (profile as any).banner_url || "";
+  const bannerUrl = profile.banner_url || "";
 
   const soundcloudLink = musicLinks.find((l) => l.url?.includes("soundcloud.com"));
   const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
 
   return (
-    <div className="min-h-screen bg-white text-neutral-900">
-      {/* Hero banner */}
-      {(bannerUrl || profile.photo_url) && (
-        <div className="w-full h-48 sm:h-64 md:h-80 overflow-hidden relative bg-neutral-200">
-          <img
-            src={bannerUrl || profile.photo_url}
-            alt={profile.name}
-            className="w-full h-full object-cover object-top"
-          />
-        </div>
-      )}
+    <div className="min-h-screen bg-background text-foreground">
+      <HeroBanner bannerUrl={bannerUrl} photoUrl={profile.photo_url ?? undefined} name={profile.name} />
 
-      {/* Profile info */}
       <div className="max-w-5xl mx-auto px-6 relative">
-        <div className="flex items-end gap-4 -mt-14 relative z-10">
-          {profile.photo_url && (
-            <img
-              src={profile.photo_url}
-              alt={profile.name}
-              className="w-20 h-20 rounded-lg object-cover border-[3px] border-primary shadow-lg"
-            />
-          )}
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 pb-1">
-            {profile.name}
-          </h1>
-        </div>
+        <ProfileHeader profile={profile} />
 
         {profile.location && (
-          <p className="flex items-center gap-1.5 text-neutral-500 mt-3 text-sm">
+          <p className="flex items-center gap-1.5 text-muted-foreground mt-3 text-sm">
             <MapPin size={14} /> {profile.location}
           </p>
         )}
 
         {profile.bio && (
-          <p className="text-neutral-600 mt-3 text-sm max-w-lg">{profile.bio}</p>
+          <p className="text-muted-foreground mt-3 text-sm max-w-lg">{profile.bio}</p>
         )}
 
         <hr className="my-6 border-primary/60" />
 
-        {/* Genre */}
-        {profile.genres && profile.genres.length > 0 && (
-          <>
-            <section>
-              <h2 className="text-sm font-bold mb-3 text-neutral-900">Genre</h2>
-              <div className="flex flex-wrap gap-2">
-                {profile.genres.map((g: string) => (
-                  <span
-                    key={g}
-                    className="border border-primary text-primary text-xs font-semibold px-3 py-1 rounded-full"
-                  >
-                    {g}
-                  </span>
-                ))}
-              </div>
-            </section>
-            <hr className="my-6 border-primary/60" />
-          </>
-        )}
-
-        {/* Press Kit */}
-        {pastEvents.length > 0 && (
-          <>
-            <section>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-neutral-900">Press Kit</h2>
-                <ExternalLink size={16} className="text-neutral-400" />
-              </div>
-              <div className="mt-2 space-y-1">
-                {pastEvents.map((ev: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between py-2 text-sm">
-                    <span>{ev.name}</span>
-                    {ev.date && <span className="text-neutral-400 text-xs">{ev.date}</span>}
-                  </div>
-                ))}
-              </div>
-            </section>
-            <hr className="my-6 border-primary/60" />
-          </>
-        )}
-
-        {/* SoundCloud embed */}
-        {soundcloudLink && (
-          <>
-            <section>
-              <h2 className="text-sm font-bold mb-3 text-neutral-900">SoundCloud</h2>
-              <div className="rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200">
-                <iframe
-                  width="100%"
-                  height="166"
-                  scrolling="no"
-                  frameBorder="no"
-                  allow="autoplay"
-                  src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudLink.url)}&color=%2300ff00&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`}
-                  className="w-full"
-                />
-              </div>
-            </section>
-            <hr className="my-6 border-primary/60" />
-          </>
-        )}
-
-        {/* Music links */}
-        {otherMusicLinks.length > 0 && (
-          <>
-            <section>
-              <h2 className="text-sm font-bold mb-3 text-neutral-900">Music</h2>
-              <div className="space-y-0">
-                {otherMusicLinks.map((link: any, i: number) => (
-                  <a
-                    key={i}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between py-3 text-sm text-neutral-700 hover:text-primary transition-colors"
-                  >
-                    <span>{link.label || link.url}</span>
-                    <ExternalLink size={16} className="text-neutral-400" />
-                  </a>
-                ))}
-              </div>
-            </section>
-            <hr className="my-6 border-primary/60" />
-          </>
-        )}
-
-        {/* Social links */}
-        {socialLinks.length > 0 && (
-          <>
-            <section>
-              <h2 className="text-sm font-bold mb-3 text-neutral-900">Social links</h2>
-              <div className="space-y-0">
-                {socialLinks.map((link: any, i: number) => (
-                  <a
-                    key={i}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between py-3 text-sm text-neutral-700 hover:text-primary transition-colors"
-                  >
-                    <span>{link.label}</span>
-                    <ExternalLink size={16} className="text-neutral-400" />
-                  </a>
-                ))}
-              </div>
-            </section>
-            <hr className="my-6 border-primary/60" />
-          </>
-        )}
+        <GenreSection genres={profile.genres || []} />
+        <PressKitSection pastEvents={pastEvents} />
+        <SoundCloudSection soundcloudLink={soundcloudLink} />
+        <LinksSection title="Music" links={otherMusicLinks} />
+        <LinksSection title="Social links" links={socialLinks} />
 
         <div className="h-24" />
       </div>
