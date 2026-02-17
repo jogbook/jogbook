@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProfile, getBookingRequests, updateBookingStatus } from "@/lib/supabase-helpers";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Inbox, Clock, Check, X } from "lucide-react";
@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 
 const statusColors: Record<string, string> = {
-  new: "bg-primary/20 text-primary border-primary/30",
-  accepted: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  declined: "bg-destructive/20 text-destructive border-destructive/30",
+  new: "bg-primary/15 text-primary border-primary/20",
+  accepted: "bg-accent/15 text-accent border-accent/20",
+  declined: "bg-destructive/15 text-destructive border-destructive/20",
 };
 
 export default function Dashboard() {
@@ -37,6 +37,12 @@ export default function Dashboard() {
   const pending = requests.filter((r: any) => r.status === "new").length;
   const upcoming = requests.filter((r: any) => r.status === "accepted" && r.event_date && new Date(r.event_date) >= new Date()).length;
 
+  const stats = [
+    { label: "Total Requests", value: requests.length, icon: Inbox },
+    { label: "Pending", value: pending, icon: Clock },
+    { label: "Upcoming Gigs", value: upcoming, icon: CalendarDays },
+  ];
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -46,43 +52,33 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="p-3 rounded-lg bg-primary/10"><Inbox className="text-primary" size={20} /></div>
-              <div>
-                <p className="text-2xl font-bold">{requests.length}</p>
-                <p className="text-sm text-muted-foreground">Total Requests</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="p-3 rounded-lg bg-primary/10"><Clock className="text-primary" size={20} /></div>
-              <div>
-                <p className="text-2xl font-bold">{pending}</p>
-                <p className="text-sm text-muted-foreground">Pending</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="p-3 rounded-lg bg-primary/10"><CalendarDays className="text-primary" size={20} /></div>
-              <div>
-                <p className="text-2xl font-bold">{upcoming}</p>
-                <p className="text-sm text-muted-foreground">Upcoming Gigs</p>
-              </div>
-            </CardContent>
-          </Card>
+          {stats.map(({ label, value, icon: Icon }) => (
+            <Card key={label} className="relative overflow-hidden grain-overlay">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="p-3 rounded-xl bg-primary/10 border border-primary/10">
+                  <Icon className="text-primary" size={20} />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{value}</p>
+                  <p className="text-sm text-muted-foreground">{label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div>
           <h2 className="text-xl font-bold mb-4">Recent Requests</h2>
           {requests.length === 0 ? (
-            <Card><CardContent className="p-8 text-center text-muted-foreground">No booking requests yet. Share your public profile to start receiving bookings!</CardContent></Card>
+            <Card>
+              <CardContent className="p-8 text-center text-muted-foreground">
+                No booking requests yet. Share your public profile to start receiving bookings!
+              </CardContent>
+            </Card>
           ) : (
             <div className="space-y-3">
               {requests.slice(0, 5).map((r: any) => (
-                <Card key={r.id}>
+                <Card key={r.id} className="hover:border-primary/20 transition-colors">
                   <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">

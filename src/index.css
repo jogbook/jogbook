@@ -4,44 +4,44 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
+    --background: 140 10% 4%;
+    --foreground: 120 5% 93%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 95%;
+    --card: 140 8% 7%;
+    --card-foreground: 120 5% 93%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 140 8% 7%;
+    --popover-foreground: 120 5% 93%;
 
-    --primary: 120 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 120 100% 40%;
+    --primary-foreground: 120 40% 4%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 150 12% 12%;
+    --secondary-foreground: 120 5% 90%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 140 8% 14%;
+    --muted-foreground: 120 5% 50%;
 
-    --accent: 120 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 145 60% 30%;
+    --accent-foreground: 120 5% 93%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 120 100% 50%;
+    --border: 140 10% 16%;
+    --input: 140 10% 16%;
+    --ring: 120 100% 40%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 120 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 120 100% 50%;
+    --sidebar-background: 140 10% 5%;
+    --sidebar-foreground: 120 5% 93%;
+    --sidebar-primary: 120 100% 40%;
+    --sidebar-primary-foreground: 120 40% 4%;
+    --sidebar-accent: 150 12% 10%;
+    --sidebar-accent-foreground: 120 5% 93%;
+    --sidebar-border: 140 10% 14%;
+    --sidebar-ring: 120 100% 40%;
   }
 }
 
@@ -52,10 +52,46 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   ::selection {
-    background-color: hsl(120 100% 50%);
-    color: hsl(0 0% 0%);
+    background-color: hsl(120 100% 40%);
+    color: hsl(120 40% 4%);
   }
+}
+
+/* Vinyl-inspired decorative ring - reusable utility */
+.vinyl-ring {
+  position: relative;
+}
+.vinyl-ring::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    hsl(120 100% 40% / 0.4),
+    hsl(145 60% 30% / 0.2),
+    hsl(120 100% 40% / 0.1),
+    hsl(145 60% 30% / 0.2),
+    hsl(120 100% 40% / 0.4)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Subtle grain texture overlay */
+.grain-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
 }
