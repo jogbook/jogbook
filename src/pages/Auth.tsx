@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import jogbookLogo from "@/assets/jogbook-logo.png";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -33,14 +34,16 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tighter">
-            <span className="text-primary">jog</span>
-            <span className="text-foreground">book</span>
-          </h1>
-          <p className="mt-2 text-muted-foreground">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 relative grain-overlay overflow-hidden">
+      {/* Decorative background circles inspired by vinyl record */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-primary/5 pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-primary/8 pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-primary/10 pointer-events-none" />
+
+      <div className="w-full max-w-sm space-y-8 relative z-10">
+        <div className="text-center space-y-3">
+          <img src={jogbookLogo} alt="jogbook" className="h-14 w-auto mx-auto" />
+          <p className="text-muted-foreground text-sm">
             {isSignUp ? "Create your DJ account" : "Sign in to your account"}
           </p>
         </div>
@@ -55,7 +58,7 @@ export default function Auth() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="bg-card border-border"
+              className="bg-card border-border h-11"
             />
           </div>
           <div className="space-y-2">
@@ -68,13 +71,13 @@ export default function Auth() {
               placeholder="••••••••"
               required
               minLength={6}
-              className="bg-card border-border"
+              className="bg-card border-border h-11"
             />
           </div>
           <Button
             type="submit"
             disabled={submitting}
-            className="w-full font-bold"
+            className="w-full font-bold h-11 text-sm"
           >
             {submitting ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
           </Button>

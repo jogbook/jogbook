@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import jogbookLogo from "@/assets/jogbook-logo.png";
 
 function HeroBanner({ bannerUrl, photoUrl, name }: { bannerUrl?: string; photoUrl?: string; name: string }) {
   return (
@@ -23,6 +24,7 @@ function HeroBanner({ bannerUrl, photoUrl, name }: { bannerUrl?: string; photoUr
             alt={name}
             className="w-full h-full object-cover object-top"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
         </div>
       )}
     </>
@@ -33,11 +35,13 @@ function ProfileHeader({ profile }: { profile: any }) {
   return (
     <div className="flex items-end gap-4 -mt-14 relative z-10">
       {profile.photo_url && (
-        <img
-          src={profile.photo_url}
-          alt={profile.name}
-          className="w-20 h-20 rounded-lg object-cover border-[3px] border-primary shadow-lg"
-        />
+        <div className="vinyl-ring rounded-xl">
+          <img
+            src={profile.photo_url}
+            alt={profile.name}
+            className="w-20 h-20 rounded-xl object-cover shadow-lg"
+          />
+        </div>
       )}
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground pb-1">
         {profile.name}
@@ -56,14 +60,14 @@ function GenreSection({ genres }: { genres: string[] }) {
           {genres.map((g: string) => (
             <span
               key={g}
-              className="border border-primary text-primary text-xs font-semibold px-3 py-1 rounded-full"
+              className="border border-primary/30 text-primary text-xs font-semibold px-3 py-1 rounded-full bg-primary/5"
             >
               {g}
             </span>
           ))}
         </div>
       </section>
-      <hr className="my-6 border-primary/60" />
+      <hr className="my-6 border-border" />
     </>
   );
 }
@@ -86,7 +90,7 @@ function PressKitSection({ pastEvents }: { pastEvents: any[] }) {
           ))}
         </div>
       </section>
-      <hr className="my-6 border-primary/60" />
+      <hr className="my-6 border-border" />
     </>
   );
 }
@@ -104,12 +108,12 @@ function SoundCloudSection({ soundcloudLink }: { soundcloudLink: any }) {
             scrolling="no"
             frameBorder="no"
             allow="autoplay"
-            src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudLink.url)}&color=%2300ff00&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`}
+            src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudLink.url)}&color=%2300cc33&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`}
             className="w-full"
           />
         </div>
       </section>
-      <hr className="my-6 border-primary/60" />
+      <hr className="my-6 border-border" />
     </>
   );
 }
@@ -135,7 +139,7 @@ function LinksSection({ title, links }: { title: string; links: any[] }) {
           ))}
         </div>
       </section>
-      <hr className="my-6 border-primary/60" />
+      <hr className="my-6 border-border" />
     </>
   );
 }
@@ -178,10 +182,10 @@ export default function PublicProfile() {
   const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative grain-overlay">
       <HeroBanner bannerUrl={bannerUrl} photoUrl={profile.photo_url ?? undefined} name={profile.name} />
 
-      <div className="max-w-5xl mx-auto px-6 relative">
+      <div className="max-w-5xl mx-auto px-6 relative z-10">
         <ProfileHeader profile={profile} />
 
         {profile.location && (
@@ -194,7 +198,7 @@ export default function PublicProfile() {
           <p className="text-muted-foreground mt-3 text-sm max-w-lg">{profile.bio}</p>
         )}
 
-        <hr className="my-6 border-primary/60" />
+        <hr className="my-6 border-border" />
 
         <GenreSection genres={profile.genres || []} />
         <PressKitSection pastEvents={pastEvents} />
@@ -205,8 +209,13 @@ export default function PublicProfile() {
         <div className="h-24" />
       </div>
 
+      {/* Powered by jogbook */}
+      <div className="fixed bottom-16 left-0 right-0 flex justify-center pointer-events-none z-40">
+        <img src={jogbookLogo} alt="jogbook" className="h-5 opacity-30" />
+      </div>
+
       {/* Sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border px-6 py-3 flex items-center justify-between">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border px-6 py-3 flex items-center justify-between">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <div className="flex items-center cursor-pointer text-foreground">
