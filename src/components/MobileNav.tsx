@@ -3,6 +3,7 @@ import { Menu, X, LayoutDashboard, User, Inbox, CreditCard, LogOut } from "lucid
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import jogbookLogo from "@/assets/jogbook-logo.png";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -18,10 +19,7 @@ export function MobileNav() {
   return (
     <>
       <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card sticky top-0 z-30">
-        <h1 className="text-xl font-bold tracking-tighter">
-          <span className="text-primary">jog</span>
-          <span className="text-foreground">book</span>
-        </h1>
+        <img src={jogbookLogo} alt="jogbook" className="h-8 w-auto" />
         <button onClick={() => setOpen(!open)} className="p-2 text-muted-foreground hover:text-foreground">
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
