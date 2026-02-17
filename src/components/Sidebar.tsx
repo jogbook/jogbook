@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/lib/supabase-helpers";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import jogbookLogo from "@/assets/jogbook-logo.png";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -22,10 +23,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 bg-card border-r border-border z-20">
       <div className="p-6">
-        <h1 className="text-2xl font-bold tracking-tighter">
-          <span className="text-primary">jog</span>
-          <span className="text-foreground">book</span>
-        </h1>
+        <img src={jogbookLogo} alt="jogbook" className="h-10 w-auto" />
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
