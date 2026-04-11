@@ -23,7 +23,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 bg-sidebar border-r border-sidebar-border z-20">
       <div className="p-6 pb-8">
-        <img src={jogbookLogo} alt="jogbook" className="h-9 w-auto" />
+        <img src={jogbookLogo} alt="jogbook" className="h-9 w-40" />
       </div>
 
       <nav className="flex-1 px-3 space-y-0.5">
