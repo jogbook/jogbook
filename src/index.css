@@ -34,13 +34,13 @@
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 140 10% 10%;
+    --sidebar-background: 220 10% 94%;
+    --sidebar-foreground: 220 10% 20%;
     --sidebar-primary: 120 100% 30%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 140 10% 94%;
-    --sidebar-accent-foreground: 140 10% 10%;
-    --sidebar-border: 140 8% 88%;
+    --sidebar-accent: 220 8% 88%;
+    --sidebar-accent-foreground: 220 10% 15%;
+    --sidebar-border: 220 8% 85%;
     --sidebar-ring: 120 100% 30%;
   }
 }
