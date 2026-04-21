@@ -8,7 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ProfileEditor from "./pages/ProfileEditor";
 import Requests from "./pages/Requests";
-import Subscribe from "./pages/Subscribe";
+
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
 
