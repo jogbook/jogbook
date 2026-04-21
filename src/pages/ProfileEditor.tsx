@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ImageUpload";
+import { PressKitUpload } from "@/components/PressKitUpload";
 import { toast } from "sonner";
 import { ExternalLink, Plus, Trash2, Copy, Share2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +25,8 @@ export default function ProfileEditor() {
   const [genres, setGenres] = useState("");
   const [location, setLocation] = useState("");
   const [slug, setSlug] = useState("");
+  const [pressKitUrl, setPressKitUrl] = useState("");
+  const [soundcloudUrl, setSoundcloudUrl] = useState("");
   const [musicLinks, setMusicLinks] = useState<{ label: string; url: string }[]>([]);
   const [socialLinks, setSocialLinks] = useState<{ label: string; url: string }[]>([]);
   const [pastEvents, setPastEvents] = useState<{ name: string; date: string }[]>([]);
@@ -38,6 +41,8 @@ export default function ProfileEditor() {
       setGenres((profile.genres || []).join(", "));
       setLocation(profile.location || "");
       setSlug(profile.slug || "");
+      setPressKitUrl((profile as any).press_kit_url || "");
+      setSoundcloudUrl((profile as any).soundcloud_url || "");
       setMusicLinks(Array.isArray(profile.music_links) ? profile.music_links as any[] : []);
       setSocialLinks(Array.isArray(profile.social_links) ? profile.social_links as any[] : []);
       setPastEvents(Array.isArray(profile.past_events) ? profile.past_events as any[] : []);
@@ -56,6 +61,8 @@ export default function ProfileEditor() {
         genres: genres.split(",").map((g) => g.trim()).filter(Boolean),
         location,
         slug,
+        press_kit_url: pressKitUrl,
+        soundcloud_url: soundcloudUrl,
         music_links: musicLinks,
         social_links: socialLinks,
         past_events: pastEvents,
@@ -145,6 +152,31 @@ export default function ProfileEditor() {
                 />
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Press Kit</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <Label>Press Kit (PDF)</Label>
+            {user && (
+              <PressKitUpload value={pressKitUrl} onChange={setPressKitUrl} userId={user.id} />
+            )}
+            <p className="text-xs text-muted-foreground">PDF up to 25MB. Bookers can download this from your public profile.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>SoundCloud</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <Label>SoundCloud profile URL</Label>
+            <Input
+              value={soundcloudUrl}
+              onChange={(e) => setSoundcloudUrl(e.target.value)}
+              placeholder="https://soundcloud.com/your-handle"
+              className="bg-background"
+            />
+            <p className="text-xs text-muted-foreground">Shown as a clickable link on your public profile.</p>
           </CardContent>
         </Card>
 

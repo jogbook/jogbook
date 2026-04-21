@@ -106,10 +106,12 @@ export type Database = {
           name: string
           past_events: Json | null
           photo_url: string | null
+          press_kit_url: string | null
           rate: string | null
           rate_on_request: boolean
           slug: string | null
           social_links: Json | null
+          soundcloud_url: string | null
           stage_name: string | null
           updated_at: string
           user_id: string
@@ -125,10 +127,12 @@ export type Database = {
           name?: string
           past_events?: Json | null
           photo_url?: string | null
+          press_kit_url?: string | null
           rate?: string | null
           rate_on_request?: boolean
           slug?: string | null
           social_links?: Json | null
+          soundcloud_url?: string | null
           stage_name?: string | null
           updated_at?: string
           user_id: string
@@ -144,10 +148,12 @@ export type Database = {
           name?: string
           past_events?: Json | null
           photo_url?: string | null
+          press_kit_url?: string | null
           rate?: string | null
           rate_on_request?: boolean
           slug?: string | null
           social_links?: Json | null
+          soundcloud_url?: string | null
           stage_name?: string | null
           updated_at?: string
           user_id?: string

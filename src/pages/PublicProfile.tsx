@@ -72,14 +72,20 @@ function GenreSection({ genres }: { genres: string[] }) {
   );
 }
 
-function PressKitSection({ pastEvents }: { pastEvents: any[] }) {
-  if (pastEvents.length === 0) return null;
+function PressKitSection({ pastEvents, pressKitUrl }: { pastEvents: any[]; pressKitUrl?: string }) {
+  if (pastEvents.length === 0 && !pressKitUrl) return null;
   return (
     <>
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground">Press Kit</h2>
-          <ExternalLink size={16} className="text-muted-foreground" />
+          {pressKitUrl ? (
+            <a href={pressKitUrl} target="_blank" rel="noopener noreferrer" aria-label="Download press kit">
+              <ExternalLink size={16} className="text-muted-foreground hover:text-primary transition-colors" />
+            </a>
+          ) : (
+            <ExternalLink size={16} className="text-muted-foreground" />
+          )}
         </div>
         <div className="mt-2 space-y-1">
           {pastEvents.map((ev: any, i: number) => (
@@ -177,8 +183,12 @@ export default function PublicProfile() {
   const socialLinks = Array.isArray(profile.social_links) ? (profile.social_links as any[]) : [];
   const pastEvents = Array.isArray(profile.past_events) ? (profile.past_events as any[]) : [];
   const bannerUrl = profile.banner_url || "";
+  const pressKitUrl = (profile as any).press_kit_url || "";
+  const soundcloudUrl = (profile as any).soundcloud_url || "";
 
-  const soundcloudLink = musicLinks.find((l) => l.url?.includes("soundcloud.com"));
+  const soundcloudLink =
+    musicLinks.find((l) => l.url?.includes("soundcloud.com")) ||
+    (soundcloudUrl ? { url: soundcloudUrl, label: "SoundCloud" } : null);
   const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
 
   return (
@@ -201,7 +211,7 @@ export default function PublicProfile() {
         <hr className="my-6 border-border" />
 
         <GenreSection genres={profile.genres || []} />
-        <PressKitSection pastEvents={pastEvents} />
+        <PressKitSection pastEvents={pastEvents} pressKitUrl={pressKitUrl} />
         <SoundCloudSection soundcloudLink={soundcloudLink} />
         <LinksSection title="Music" links={otherMusicLinks} />
         <LinksSection title="Social links" links={socialLinks} />
