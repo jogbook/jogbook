@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Jogbook</string>
+    <string name="title_activity_main">Jogbook</string>
+    <string name="package_name">com.jogbook.app</string>
+    <string name="custom_url_scheme">com.jogbook.app</string>
+</resources>
