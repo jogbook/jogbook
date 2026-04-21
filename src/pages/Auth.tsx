@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import jogbookLogo from "@/assets/jogbook-logo.png";
 
 export default function Auth() {
   const { user, loading } = useAuth();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, _setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -84,13 +84,13 @@ export default function Auth() {
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
             className="text-primary hover:underline font-medium"
           >
-            {isSignUp ? "Sign in" : "Sign up"}
-          </button>
+            Sign up
+          </Link>
         </p>
       </div>
     </div>
