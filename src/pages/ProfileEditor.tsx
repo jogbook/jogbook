@@ -61,6 +61,8 @@ export default function ProfileEditor() {
         genres: genres.split(",").map((g) => g.trim()).filter(Boolean),
         location,
         slug,
+        press_kit_url: pressKitUrl,
+        soundcloud_url: soundcloudUrl,
         music_links: musicLinks,
         social_links: socialLinks,
         past_events: pastEvents,
