@@ -62,3 +62,11 @@ export async function updateBookingStatus(id: string, status: string) {
     .eq("id", id);
   if (error) throw error;
 }
+
+export async function deleteBookingRequest(id: string) {
+  const { error } = await supabase
+    .from("booking_requests")
+    .delete()
+    .eq("id", id);
+  if (error) throw error;
+}
