@@ -211,7 +211,7 @@ export default function PublicProfile() {
         <hr className="my-6 border-border" />
 
         <GenreSection genres={profile.genres || []} />
-        <PressKitSection pastEvents={pastEvents} />
+        <PressKitSection pastEvents={pastEvents} pressKitUrl={pressKitUrl} />
         <SoundCloudSection soundcloudLink={soundcloudLink} />
         <LinksSection title="Music" links={otherMusicLinks} />
         <LinksSection title="Social links" links={socialLinks} />
