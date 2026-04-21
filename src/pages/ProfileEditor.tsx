@@ -25,6 +25,8 @@ export default function ProfileEditor() {
   const [genres, setGenres] = useState("");
   const [location, setLocation] = useState("");
   const [slug, setSlug] = useState("");
+  const [pressKitUrl, setPressKitUrl] = useState("");
+  const [soundcloudUrl, setSoundcloudUrl] = useState("");
   const [musicLinks, setMusicLinks] = useState<{ label: string; url: string }[]>([]);
   const [socialLinks, setSocialLinks] = useState<{ label: string; url: string }[]>([]);
   const [pastEvents, setPastEvents] = useState<{ name: string; date: string }[]>([]);
