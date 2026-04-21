@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
 import { Disc3, CalendarHeart } from "lucide-react";
 import jogbookLogo from "@/assets/jogbook-logo.png";
@@ -22,16 +21,13 @@ export default function Signup() {
   const [role, setRole] = useState<Role | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // shared
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  // DJ
   const [stageName, setStageName] = useState("");
   const [genres, setGenres] = useState("");
   const [djLocation, setDjLocation] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
   const [bio, setBio] = useState("");
   const [soundcloud, setSoundcloud] = useState("");
   const [instagram, setInstagram] = useState("");
@@ -39,7 +35,6 @@ export default function Signup() {
   const [rate, setRate] = useState("");
   const [rateOnRequest, setRateOnRequest] = useState(false);
 
-  // Booker
   const [fullName, setFullName] = useState("");
   const [companyOrEventType, setCompanyOrEventType] = useState("");
   const [bookerLocation, setBookerLocation] = useState("");
@@ -99,7 +94,6 @@ export default function Signup() {
 
     const userId = data.user?.id;
     if (userId) {
-      // The DB trigger created the base profile/role. Now persist extra fields.
       try {
         if (role === "dj") {
           const genreList = genres.split(",").map((g) => g.trim()).filter(Boolean);
@@ -118,30 +112,23 @@ export default function Signup() {
             .from("profiles")
             .update({
               name: stageName,
-              stage_name: stageName,
               bio,
               location: djLocation,
               genres: genreList,
-              photo_url: photoUrl || null,
               social_links: social,
               music_links: music,
-              rate: rateOnRequest ? "" : rate,
-              rate_on_request: rateOnRequest,
             })
             .eq("user_id", userId);
         } else {
           await supabase
-            .from("booker_profiles")
+            .from("profiles")
             .update({
-              full_name: fullName,
-              company_or_event_type: companyOrEventType,
+              name: fullName,
               location: bookerLocation,
-              phone,
             })
             .eq("user_id", userId);
         }
       } catch (err) {
-        // Non-fatal: account is created, profile fields can be edited later.
         console.error(err);
       }
     }
@@ -216,15 +203,8 @@ export default function Signup() {
               <Input id="djLocation" value={djLocation} onChange={(e) => setDjLocation(e.target.value)} required className="bg-card border-border h-11" />
             </div>
             <div className="space-y-2">
-              <Label>Profile photo</Label>
-              <ImageUpload
-                value={photoUrl}
-                onChange={setPhotoUrl}
-                userId="signup-temp"
-                folder="signup-photos"
-                aspectRatio="square"
-                label="Upload"
-              />
+              <Label>Profile photo <span className="text-muted-foreground">(optional — add after signup)</span></Label>
+              <p className="text-xs text-muted-foreground">You can upload a profile photo from your dashboard after creating your account.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
