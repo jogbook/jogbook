@@ -156,6 +156,31 @@ export default function ProfileEditor() {
         </Card>
 
         <Card>
+          <CardHeader><CardTitle>Press Kit</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <Label>Press Kit (PDF)</Label>
+            {user && (
+              <PressKitUpload value={pressKitUrl} onChange={setPressKitUrl} userId={user.id} />
+            )}
+            <p className="text-xs text-muted-foreground">PDF up to 25MB. Bookers can download this from your public profile.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>SoundCloud</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <Label>SoundCloud profile URL</Label>
+            <Input
+              value={soundcloudUrl}
+              onChange={(e) => setSoundcloudUrl(e.target.value)}
+              placeholder="https://soundcloud.com/your-handle"
+              className="bg-background"
+            />
+            <p className="text-xs text-muted-foreground">Shown as a clickable link on your public profile.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
           <CardHeader><CardTitle>Basic Info</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
