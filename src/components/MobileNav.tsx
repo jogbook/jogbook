@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, LayoutDashboard, User, Inbox, CreditCard, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, User, Inbox, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/profile", label: "My Profile", icon: User },
   { to: "/requests", label: "Requests", icon: Inbox },
-  { to: "/subscribe", label: "Subscribe", icon: CreditCard },
 ];
 
 export function MobileNav() {
