@@ -72,14 +72,20 @@ function GenreSection({ genres }: { genres: string[] }) {
   );
 }
 
-function PressKitSection({ pastEvents }: { pastEvents: any[] }) {
-  if (pastEvents.length === 0) return null;
+function PressKitSection({ pastEvents, pressKitUrl }: { pastEvents: any[]; pressKitUrl?: string }) {
+  if (pastEvents.length === 0 && !pressKitUrl) return null;
   return (
     <>
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground">Press Kit</h2>
-          <ExternalLink size={16} className="text-muted-foreground" />
+          {pressKitUrl ? (
+            <a href={pressKitUrl} target="_blank" rel="noopener noreferrer" aria-label="Download press kit">
+              <ExternalLink size={16} className="text-muted-foreground hover:text-primary transition-colors" />
+            </a>
+          ) : (
+            <ExternalLink size={16} className="text-muted-foreground" />
+          )}
         </div>
         <div className="mt-2 space-y-1">
           {pastEvents.map((ev: any, i: number) => (
