@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProfile, getBookingRequests, updateBookingStatus } from "@/lib/supabase-helpers";
+import { getProfile, getBookingRequests, updateBookingStatus, deleteBookingRequest } from "@/lib/supabase-helpers";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Check, X, Mail, Phone } from "lucide-react";
+import { Check, X, Mail, Phone, Trash2 } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   new: "bg-primary/20 text-primary border-primary/30",
@@ -36,6 +36,17 @@ export default function Requests() {
       toast.success(`Request ${status}`);
     } catch {
       toast.error("Failed to update");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this request? This cannot be undone.")) return;
+    try {
+      await deleteBookingRequest(id);
+      queryClient.invalidateQueries({ queryKey: ["booking-requests"] });
+      toast.success("Request deleted");
+    } catch {
+      toast.error("Failed to delete");
     }
   };
 
@@ -78,12 +89,15 @@ export default function Requests() {
                         {r.event_type} {r.event_date && `• ${format(new Date(r.event_date), "MMM d, yyyy")}`}
                       </p>
                     </div>
-                    {r.status === "new" && (
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleStatus(r.id, "accepted")} className="gap-1"><Check size={14} /> Accept</Button>
-                        <Button size="sm" variant="outline" onClick={() => handleStatus(r.id, "declined")} className="gap-1"><X size={14} /> Decline</Button>
-                      </div>
-                    )}
+                    <div className="flex gap-2">
+                      {r.status === "new" && (
+                        <>
+                          <Button size="sm" onClick={() => handleStatus(r.id, "accepted")} className="gap-1"><Check size={14} /> Accept</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleStatus(r.id, "declined")} className="gap-1"><X size={14} /> Decline</Button>
+                        </>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => handleDelete(r.id)} className="gap-1 text-destructive hover:text-destructive"><Trash2 size={14} /> Delete</Button>
+                    </div>
                   </div>
                   {r.message && <p className="text-sm text-muted-foreground">{r.message}</p>}
                   {r.status === "accepted" && (
