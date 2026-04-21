@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +14,6 @@ import jogbookLogo from "@/assets/jogbook-logo.png";
 type Role = "dj" | "booker";
 type Step = "role" | "details" | "account";
 
-// Full list of countries (ISO 3166-1)
 const COUNTRIES = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
   "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia",
@@ -48,6 +47,7 @@ export default function Signup() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   // DJ fields
@@ -69,8 +69,33 @@ export default function Signup() {
   const [bookerCountry, setBookerCountry] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Shared optional profile photo
+  // Profile photo with preview
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+
+  // Cleanup preview URL on unmount or change
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+    };
+  }, [photoPreviewUrl]);
+
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+
+  const handlePhotoChange = (file: File | null) => {
+    if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl);
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`File too large. Maximum size is 25MB. Your file is ${(file.size / (1024 * 1024)).toFixed(1)}MB.`);
+        return;
+      }
+      setProfilePhoto(file);
+      setPhotoPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setProfilePhoto(null);
+      setPhotoPreviewUrl(null);
+    }
+  };
 
   if (loading) return <div className="min-h-screen bg-background" />;
   if (user) return <Navigate to="/dashboard" replace />;
@@ -96,7 +121,6 @@ export default function Signup() {
     return true;
   };
 
-  // Helper to upload profile photo and return public URL
   const uploadProfilePhoto = async (userId: string): Promise<string | null> => {
     if (!profilePhoto) return null;
     const fileExt = profilePhoto.name.split('.').pop();
@@ -124,11 +148,14 @@ export default function Signup() {
       toast.error("Password must be at least 6 characters");
       return;
     }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
     setSubmitting(true);
 
     const displayName = role === "dj" ? stageName : fullName;
 
-    // 1. Sign up
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -146,13 +173,11 @@ export default function Signup() {
 
     const userId = data.user?.id;
     if (userId) {
-      // 2. Upload photo if present
       let avatarUrl = null;
       if (profilePhoto) {
         avatarUrl = await uploadProfilePhoto(userId);
       }
 
-      // 3. Build location string
       let locationStr = "";
       if (role === "dj") {
         locationStr = `${djCity}, ${djCountry}`;
@@ -160,7 +185,6 @@ export default function Signup() {
         locationStr = `${bookerCity}, ${bookerCountry}`;
       }
 
-      // 4. Update profile
       try {
         if (role === "dj") {
           const genreList = genres.split(",").map((g) => g.trim()).filter(Boolean);
@@ -184,7 +208,7 @@ export default function Signup() {
               music_links: music,
               rate: rateOnRequest ? null : rate,
               rate_on_request: rateOnRequest,
-              avatar_url: avatarUrl, // store photo URL
+              avatar_url: avatarUrl,
             })
             .eq("user_id", userId);
         } else {
@@ -271,7 +295,6 @@ export default function Signup() {
               <p className="text-xs text-muted-foreground">Separate with commas</p>
             </div>
 
-            {/* Location split: City + Country */}
             <div className="space-y-2">
               <Label>Location</Label>
               <div className="flex gap-2">
@@ -296,17 +319,26 @@ export default function Signup() {
               </div>
             </div>
 
-            {/* Optional profile photo upload */}
+            {/* Profile photo with preview */}
             <div className="space-y-2">
               <Label htmlFor="profilePhoto">Profile photo <span className="text-muted-foreground">(optional)</span></Label>
               <Input
                 id="profilePhoto"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+                onChange={(e) => handlePhotoChange(e.target.files?.[0] || null)}
                 className="bg-card border-border h-11"
               />
-              <p className="text-xs text-muted-foreground">Max 5MB. You can also add one later from your dashboard.</p>
+              {photoPreviewUrl && (
+                <div className="mt-2 flex justify-center">
+                  <img
+                    src={photoPreviewUrl}
+                    alt="Profile preview"
+                    className="w-20 h-20 rounded-full object-cover border-2 border-primary"
+                  />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Max 25MB (high-res press photos supported). You can also add one later from your dashboard.</p>
             </div>
 
             <div className="space-y-2">
@@ -357,7 +389,6 @@ export default function Signup() {
               <Input id="company" value={companyOrEventType} onChange={(e) => setCompanyOrEventType(e.target.value)} className="bg-card border-border h-11" />
             </div>
 
-            {/* Location split for booker */}
             <div className="space-y-2">
               <Label>Location</Label>
               <div className="flex gap-2">
@@ -382,16 +413,25 @@ export default function Signup() {
               </div>
             </div>
 
-            {/* Optional profile photo upload for booker */}
+            {/* Profile photo with preview for booker */}
             <div className="space-y-2">
               <Label htmlFor="profilePhoto">Profile photo <span className="text-muted-foreground">(optional)</span></Label>
               <Input
                 id="profilePhoto"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+                onChange={(e) => handlePhotoChange(e.target.files?.[0] || null)}
                 className="bg-card border-border h-11"
               />
+              {photoPreviewUrl && (
+                <div className="mt-2 flex justify-center">
+                  <img
+                    src={photoPreviewUrl}
+                    alt="Profile preview"
+                    className="w-20 h-20 rounded-full object-cover border-2 border-primary"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -414,6 +454,10 @@ export default function Signup() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} className="bg-card border-border h-11" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" required className="bg-card border-border h-11" />
             </div>
             <div className="flex items-start gap-2 pt-1">
               <Checkbox id="terms" checked={acceptTerms} onCheckedChange={(c) => setAcceptTerms(!!c)} className="mt-0.5" />
