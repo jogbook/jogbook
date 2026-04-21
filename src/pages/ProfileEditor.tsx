@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ImageUpload";
+import { PressKitUpload } from "@/components/PressKitUpload";
 import { toast } from "sonner";
 import { ExternalLink, Plus, Trash2, Copy, Share2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
