@@ -183,8 +183,12 @@ export default function PublicProfile() {
   const socialLinks = Array.isArray(profile.social_links) ? (profile.social_links as any[]) : [];
   const pastEvents = Array.isArray(profile.past_events) ? (profile.past_events as any[]) : [];
   const bannerUrl = profile.banner_url || "";
+  const pressKitUrl = (profile as any).press_kit_url || "";
+  const soundcloudUrl = (profile as any).soundcloud_url || "";
 
-  const soundcloudLink = musicLinks.find((l) => l.url?.includes("soundcloud.com"));
+  const soundcloudLink =
+    musicLinks.find((l) => l.url?.includes("soundcloud.com")) ||
+    (soundcloudUrl ? { url: soundcloudUrl, label: "SoundCloud" } : null);
   const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
 
   return (
