@@ -1,4 +1,4 @@
-import { LayoutDashboard, User, Inbox, CreditCard, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, User, Inbox, LogOut, ExternalLink } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/lib/supabase-helpers";
@@ -10,7 +10,6 @@ const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/profile", label: "My Profile", icon: User },
   { to: "/requests", label: "Requests", icon: Inbox },
-  { to: "/subscribe", label: "Subscribe", icon: CreditCard },
 ];
 
 export function Sidebar() {
