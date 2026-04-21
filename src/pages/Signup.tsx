@@ -14,6 +14,31 @@ import jogbookLogo from "@/assets/jogbook-logo.png";
 type Role = "dj" | "booker";
 type Step = "role" | "details" | "account";
 
+// Full list of countries (ISO 3166-1)
+const COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+  "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia",
+  "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+  "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+  "Côte d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland",
+  "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau",
+  "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+  "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait",
+  "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico",
+  "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru",
+  "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan",
+  "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar",
+  "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa",
+  "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore",
+  "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan",
+  "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo",
+  "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
+  "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen",
+  "Zambia", "Zimbabwe"
+];
+
 export default function Signup() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -25,9 +50,11 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
+  // DJ fields
   const [stageName, setStageName] = useState("");
   const [genres, setGenres] = useState("");
-  const [djLocation, setDjLocation] = useState("");
+  const [djCity, setDjCity] = useState("");
+  const [djCountry, setDjCountry] = useState("");
   const [bio, setBio] = useState("");
   const [soundcloud, setSoundcloud] = useState("");
   const [instagram, setInstagram] = useState("");
@@ -35,10 +62,15 @@ export default function Signup() {
   const [rate, setRate] = useState("");
   const [rateOnRequest, setRateOnRequest] = useState(false);
 
+  // Booker fields
   const [fullName, setFullName] = useState("");
   const [companyOrEventType, setCompanyOrEventType] = useState("");
-  const [bookerLocation, setBookerLocation] = useState("");
+  const [bookerCity, setBookerCity] = useState("");
+  const [bookerCountry, setBookerCountry] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Shared optional profile photo
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
 
   if (loading) return <div className="min-h-screen bg-background" />;
   if (user) return <Navigate to="/dashboard" replace />;
@@ -52,14 +84,33 @@ export default function Signup() {
     if (role === "dj") {
       if (!stageName.trim()) return toast.error("Stage name is required"), false;
       if (!genres.trim()) return toast.error("At least one genre is required"), false;
-      if (!djLocation.trim()) return toast.error("Location is required"), false;
+      if (!djCity.trim()) return toast.error("City is required"), false;
+      if (!djCountry.trim()) return toast.error("Country is required"), false;
       if (!bio.trim()) return toast.error("Bio is required"), false;
     } else {
       if (!fullName.trim()) return toast.error("Full name is required"), false;
-      if (!bookerLocation.trim()) return toast.error("Location is required"), false;
+      if (!bookerCity.trim()) return toast.error("City is required"), false;
+      if (!bookerCountry.trim()) return toast.error("Country is required"), false;
       if (!phone.trim()) return toast.error("Phone number is required"), false;
     }
     return true;
+  };
+
+  // Helper to upload profile photo and return public URL
+  const uploadProfilePhoto = async (userId: string): Promise<string | null> => {
+    if (!profilePhoto) return null;
+    const fileExt = profilePhoto.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, profilePhoto);
+    if (uploadError) {
+      console.error("Photo upload error:", uploadError);
+      toast.error("Profile photo could not be uploaded, you can add it later.");
+      return null;
+    }
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+    return urlData.publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,6 +128,7 @@ export default function Signup() {
 
     const displayName = role === "dj" ? stageName : fullName;
 
+    // 1. Sign up
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -94,29 +146,45 @@ export default function Signup() {
 
     const userId = data.user?.id;
     if (userId) {
+      // 2. Upload photo if present
+      let avatarUrl = null;
+      if (profilePhoto) {
+        avatarUrl = await uploadProfilePhoto(userId);
+      }
+
+      // 3. Build location string
+      let locationStr = "";
+      if (role === "dj") {
+        locationStr = `${djCity}, ${djCountry}`;
+      } else {
+        locationStr = `${bookerCity}, ${bookerCountry}`;
+      }
+
+      // 4. Update profile
       try {
         if (role === "dj") {
           const genreList = genres.split(",").map((g) => g.trim()).filter(Boolean);
-          const social: { label: string; url: string }[] = [];
-          if (instagram.trim()) social.push({ label: "Instagram", url: instagram.trim() });
-          const music: { label: string; url: string }[] = [];
+          const social = instagram.trim() ? [{ label: "Instagram", url: instagram.trim() }] : [];
+          const music = [];
           if (soundcloud.trim()) music.push({ label: "SoundCloud", url: soundcloud.trim() });
-          if (mixSets.trim())
-            mixSets
-              .split(/\n|,/)
-              .map((u) => u.trim())
-              .filter(Boolean)
-              .forEach((url, i) => music.push({ label: `Mix ${i + 1}`, url }));
+          if (mixSets.trim()) {
+            mixSets.split(/\n|,/).map(u => u.trim()).filter(Boolean).forEach((url, i) => {
+              music.push({ label: `Mix ${i + 1}`, url });
+            });
+          }
 
           await supabase
             .from("profiles")
             .update({
               name: stageName,
               bio,
-              location: djLocation,
+              location: locationStr,
               genres: genreList,
               social_links: social,
               music_links: music,
+              rate: rateOnRequest ? null : rate,
+              rate_on_request: rateOnRequest,
+              avatar_url: avatarUrl, // store photo URL
             })
             .eq("user_id", userId);
         } else {
@@ -124,12 +192,16 @@ export default function Signup() {
             .from("profiles")
             .update({
               name: fullName,
-              location: bookerLocation,
+              location: locationStr,
+              phone,
+              company: companyOrEventType || null,
+              avatar_url: avatarUrl,
             })
             .eq("user_id", userId);
         }
       } catch (err) {
         console.error(err);
+        toast.error("Profile could not be saved, but your account was created.");
       }
     }
 
@@ -198,14 +270,45 @@ export default function Signup() {
               <Input id="genres" placeholder="House, Techno, Disco" value={genres} onChange={(e) => setGenres(e.target.value)} required className="bg-card border-border h-11" />
               <p className="text-xs text-muted-foreground">Separate with commas</p>
             </div>
+
+            {/* Location split: City + Country */}
             <div className="space-y-2">
-              <Label htmlFor="djLocation">Location / city</Label>
-              <Input id="djLocation" value={djLocation} onChange={(e) => setDjLocation(e.target.value)} required className="bg-card border-border h-11" />
+              <Label>Location</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="City"
+                  value={djCity}
+                  onChange={(e) => setDjCity(e.target.value)}
+                  required
+                  className="bg-card border-border h-11"
+                />
+                <select
+                  value={djCountry}
+                  onChange={(e) => setDjCountry(e.target.value)}
+                  required
+                  className="bg-card border-border rounded-md px-3 h-11 text-sm"
+                >
+                  <option value="">Select country</option>
+                  {COUNTRIES.map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
             </div>
+
+            {/* Optional profile photo upload */}
             <div className="space-y-2">
-              <Label>Profile photo <span className="text-muted-foreground">(optional — add after signup)</span></Label>
-              <p className="text-xs text-muted-foreground">You can upload a profile photo from your dashboard after creating your account.</p>
+              <Label htmlFor="profilePhoto">Profile photo <span className="text-muted-foreground">(optional)</span></Label>
+              <Input
+                id="profilePhoto"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+                className="bg-card border-border h-11"
+              />
+              <p className="text-xs text-muted-foreground">Max 5MB. You can also add one later from your dashboard.</p>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} required rows={3} className="bg-card border-border" />
@@ -253,10 +356,44 @@ export default function Signup() {
               <Label htmlFor="company">Company or event type <span className="text-muted-foreground">(optional)</span></Label>
               <Input id="company" value={companyOrEventType} onChange={(e) => setCompanyOrEventType(e.target.value)} className="bg-card border-border h-11" />
             </div>
+
+            {/* Location split for booker */}
             <div className="space-y-2">
-              <Label htmlFor="bookerLocation">Location</Label>
-              <Input id="bookerLocation" value={bookerLocation} onChange={(e) => setBookerLocation(e.target.value)} required className="bg-card border-border h-11" />
+              <Label>Location</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="City"
+                  value={bookerCity}
+                  onChange={(e) => setBookerCity(e.target.value)}
+                  required
+                  className="bg-card border-border h-11"
+                />
+                <select
+                  value={bookerCountry}
+                  onChange={(e) => setBookerCountry(e.target.value)}
+                  required
+                  className="bg-card border-border rounded-md px-3 h-11 text-sm"
+                >
+                  <option value="">Select country</option>
+                  {COUNTRIES.map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
             </div>
+
+            {/* Optional profile photo upload for booker */}
+            <div className="space-y-2">
+              <Label htmlFor="profilePhoto">Profile photo <span className="text-muted-foreground">(optional)</span></Label>
+              <Input
+                id="profilePhoto"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+                className="bg-card border-border h-11"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="phone">Phone number</Label>
               <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required className="bg-card border-border h-11" />
