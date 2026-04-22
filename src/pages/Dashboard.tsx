@@ -8,6 +8,7 @@ import { CalendarDays, Inbox, Clock, Check, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { ReferralCard } from "@/components/ReferralCard";
 
 const statusColors: Record<string, string> = {
   new: "bg-primary/15 text-primary border-primary/20",
@@ -66,6 +67,8 @@ export default function Dashboard() {
             </Card>
           ))}
         </div>
+
+        <ReferralCard referralCode={(profile as any)?.referral_code} />
 
         <div>
           <h2 className="text-xl font-bold mb-4">Recent Requests</h2>

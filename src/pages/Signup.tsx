@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useNavigate, Link, Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,8 @@ const COUNTRIES = [
 export default function Signup() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get("ref")?.trim() || "";
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<Role | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -154,14 +156,6 @@ export default function Signup() {
     }
     setSubmitting(true);
 
-    const { count, error: countError } = await supabase
-  .from("profiles")
-  .select("*", { count: "exact", head: true });
-
-if (countError || (count !== null && count > 0)) {
-  toast.error("Signups are currently closed.");
-  setSubmitting(false);
-  return;
     const displayName = role === "dj" ? stageName : fullName;
 
     const { data, error } = await supabase.auth.signUp({
@@ -169,7 +163,7 @@ if (countError || (count !== null && count > 0)) {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { role, name: displayName },
+        data: { role, name: displayName, referred_by: referralCode || null },
       },
     });
 
@@ -256,6 +250,11 @@ if (countError || (count !== null && count > 0)) {
             {step === "details" && (role === "dj" ? "Tell us about your sound" : "Tell us about you")}
             {step === "account" && "Create your account"}
           </p>
+          {referralCode && step === "role" && (
+            <p className="text-xs text-primary">
+              You were invited with code <span className="font-mono font-bold">{referralCode}</span>
+            </p>
+          )}
         </div>
 
         {step === "role" && (
@@ -488,5 +487,5 @@ if (countError || (count !== null && count > 0)) {
         </p>
       </div>
     </div>
-  )
-}   }
+  );
+}

@@ -96,6 +96,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           banner_url: string | null
           bio: string | null
           created_at: string
@@ -109,6 +110,8 @@ export type Database = {
           press_kit_url: string | null
           rate: string | null
           rate_on_request: boolean
+          referral_code: string | null
+          referred_by: string | null
           slug: string | null
           social_links: Json | null
           soundcloud_url: string | null
@@ -117,6 +120,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
@@ -130,6 +134,8 @@ export type Database = {
           press_kit_url?: string | null
           rate?: string | null
           rate_on_request?: boolean
+          referral_code?: string | null
+          referred_by?: string | null
           slug?: string | null
           social_links?: Json | null
           soundcloud_url?: string | null
@@ -138,6 +144,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
@@ -151,6 +158,8 @@ export type Database = {
           press_kit_url?: string | null
           rate?: string | null
           rate_on_request?: boolean
+          referral_code?: string | null
+          referred_by?: string | null
           slug?: string | null
           social_links?: Json | null
           soundcloud_url?: string | null
@@ -186,6 +195,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: { _name: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
