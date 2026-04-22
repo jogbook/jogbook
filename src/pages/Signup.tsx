@@ -250,6 +250,11 @@ export default function Signup() {
             {step === "details" && (role === "dj" ? "Tell us about your sound" : "Tell us about you")}
             {step === "account" && "Create your account"}
           </p>
+          {referralCode && step === "role" && (
+            <p className="text-xs text-primary">
+              You were invited with code <span className="font-mono font-bold">{referralCode}</span>
+            </p>
+          )}
         </div>
 
         {step === "role" && (
