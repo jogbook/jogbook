@@ -158,16 +158,6 @@ export default function Signup() {
     }
     setSubmitting(true);
 
-    const { count, error: countError } = await supabase
-      .from("profiles")
-      .select("*", { count: "exact", head: true });
-
-    if (countError || (count !== null && count > 0)) {
-      toast.error("Signups are currently closed.");
-      setSubmitting(false);
-      return;
-    }
-
     const displayName = role === "dj" ? stageName : `${firstName} ${lastName}`;
 
     const { data, error } = await supabase.auth.signUp({
