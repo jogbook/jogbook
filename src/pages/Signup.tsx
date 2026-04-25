@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, Navigate, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -41,8 +41,6 @@ const COUNTRIES = [
 export default function Signup() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const referralCode = searchParams.get("ref")?.trim() || "";
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<Role | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -51,6 +49,10 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  // Shared name fields (both DJs and Bookers)
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   // DJ fields
   const [stageName, setStageName] = useState("");
@@ -65,7 +67,6 @@ export default function Signup() {
   const [rateOnRequest, setRateOnRequest] = useState(false);
 
   // Booker fields
-  const [fullName, setFullName] = useState("");
   const [companyOrEventType, setCompanyOrEventType] = useState("");
   const [bookerCity, setBookerCity] = useState("");
   const [bookerCountry, setBookerCountry] = useState("");
@@ -108,6 +109,8 @@ export default function Signup() {
   };
 
   const validateDetails = (): boolean => {
+    if (!firstName.trim()) return toast.error("First name is required"), false;
+    if (!lastName.trim()) return toast.error("Last name is required"), false;
     if (role === "dj") {
       if (!stageName.trim()) return toast.error("Stage name is required"), false;
       if (!genres.trim()) return toast.error("At least one genre is required"), false;
@@ -115,7 +118,6 @@ export default function Signup() {
       if (!djCountry.trim()) return toast.error("Country is required"), false;
       if (!bio.trim()) return toast.error("Bio is required"), false;
     } else {
-      if (!fullName.trim()) return toast.error("Full name is required"), false;
       if (!bookerCity.trim()) return toast.error("City is required"), false;
       if (!bookerCountry.trim()) return toast.error("Country is required"), false;
       if (!phone.trim()) return toast.error("Phone number is required"), false;
@@ -156,14 +158,29 @@ export default function Signup() {
     }
     setSubmitting(true);
 
-    const displayName = role === "dj" ? stageName : fullName;
+    const { count, error: countError } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true });
+
+    if (countError || (count !== null && count > 0)) {
+      toast.error("Signups are currently closed.");
+      setSubmitting(false);
+      return;
+    }
+
+    const displayName = role === "dj" ? stageName : `${firstName} ${lastName}`;
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { role, name: displayName, referred_by: referralCode || null },
+        data: {
+          role,
+          name: displayName,
+          first_name: firstName,
+          last_name: lastName,
+        },
       },
     });
 
@@ -217,7 +234,7 @@ export default function Signup() {
           await supabase
             .from("profiles")
             .update({
-              name: fullName,
+              name: `${firstName} ${lastName}`,
               location: locationStr,
               phone,
               company: companyOrEventType || null,
@@ -250,11 +267,6 @@ export default function Signup() {
             {step === "details" && (role === "dj" ? "Tell us about your sound" : "Tell us about you")}
             {step === "account" && "Create your account"}
           </p>
-          {referralCode && step === "role" && (
-            <p className="text-xs text-primary">
-              You were invited with code <span className="font-mono font-bold">{referralCode}</span>
-            </p>
-          )}
         </div>
 
         {step === "role" && (
@@ -292,6 +304,16 @@ export default function Signup() {
             }}
             className="space-y-4"
           >
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First name</Label>
+                <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required className="bg-card border-border h-11" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last name</Label>
+                <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required className="bg-card border-border h-11" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="stageName">Stage name</Label>
               <Input id="stageName" value={stageName} onChange={(e) => setStageName(e.target.value)} required className="bg-card border-border h-11" />
@@ -387,9 +409,15 @@ export default function Signup() {
             }}
             className="space-y-4"
           >
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
-              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="bg-card border-border h-11" />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First name</Label>
+                <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required className="bg-card border-border h-11" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last name</Label>
+                <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required className="bg-card border-border h-11" />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="company">Company or event type <span className="text-muted-foreground">(optional)</span></Label>
