@@ -163,6 +163,33 @@ export default function ProfileEditor() {
               <PressKitUpload value={pressKitUrl} onChange={setPressKitUrl} userId={user.id} />
             )}
             <p className="text-xs text-muted-foreground">PDF up to 25MB. Bookers can download this from your public profile.</p>
+            {pressKitUrl && (
+              <div className="flex items-center gap-2 pt-2">
+                <Input
+                  readOnly
+                  value={pressKitUrl}
+                  className="bg-background text-xs"
+                  onFocus={(e) => e.currentTarget.select()}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(pressKitUrl);
+                    toast.success("Public link copied!");
+                  }}
+                  className="gap-1.5 shrink-0"
+                >
+                  <Copy size={14} /> Copy
+                </Button>
+                <a href={pressKitUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                  <Button type="button" size="sm" variant="outline" className="gap-1.5">
+                    <ExternalLink size={14} /> Open
+                  </Button>
+                </a>
+              </div>
+            )}
           </CardContent>
         </Card>
 
