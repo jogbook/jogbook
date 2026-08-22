@@ -61,6 +61,12 @@ export type Database = {
           completed_at: string | null
           created_at: string
           deposit_amount: number | null
+          deposit_paid_amount: number
+          deposit_paid_at: string | null
+          deposit_payment_method:
+            | Database["public"]["Enums"]["payment_method"]
+            | null
+          deposit_payment_status: Database["public"]["Enums"]["payment_status"]
           deposit_type: Database["public"]["Enums"]["deposit_type"]
           deposit_value: number
           dj_id: string
@@ -88,6 +94,12 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           deposit_amount?: number | null
+          deposit_paid_amount?: number
+          deposit_paid_at?: string | null
+          deposit_payment_method?:
+            | Database["public"]["Enums"]["payment_method"]
+            | null
+          deposit_payment_status?: Database["public"]["Enums"]["payment_status"]
           deposit_type?: Database["public"]["Enums"]["deposit_type"]
           deposit_value?: number
           dj_id: string
@@ -115,6 +127,12 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           deposit_amount?: number | null
+          deposit_paid_amount?: number
+          deposit_paid_at?: string | null
+          deposit_payment_method?:
+            | Database["public"]["Enums"]["payment_method"]
+            | null
+          deposit_payment_status?: Database["public"]["Enums"]["payment_status"]
           deposit_type?: Database["public"]["Enums"]["deposit_type"]
           deposit_value?: number
           dj_id?: string
