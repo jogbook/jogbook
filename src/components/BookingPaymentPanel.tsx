@@ -219,19 +219,19 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
                   ? `Deposit (${Number(booking.deposit_value ?? 0)}%)`
                   : booking.deposit_type === "FULL"
                     ? "Deposit (full)"
-                    : "Deposit"
+                    : "Deposit (fixed)"
               }
               value={formatMoney(deposit, booking.booking_currency)}
             />
             <Figure
               label="Deposit paid"
-              value={formatMoney(Math.min(paid, deposit || paid), booking.booking_currency)}
-              icon={paid > 0}
+              value={formatMoney(depositPaid, booking.booking_currency)}
+              icon={depositStatus === "PAID"}
             />
             <Figure
-              label="Balance due"
-              value={formatMoney(Math.max(outstanding, 0), booking.booking_currency)}
-              icon={outstanding <= 0}
+              label="Remaining balance"
+              value={formatMoney(remaining, booking.booking_currency)}
+              icon={remaining <= 0}
             />
             <Figure
               label="Deadline"
@@ -239,7 +239,29 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
             />
           </div>
 
+          <div className="rounded-lg border border-border bg-background/60 p-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Deposit status</span>
+              <Badge variant="outline" className={DEPOSIT_STATUS_STYLES[depositStatus] ?? ""}>
+                {DEPOSIT_STATUS_LABELS[depositStatus] ?? depositStatus}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Payment method</span>
+              <span className="font-medium">
+                {depositMethod ? (METHOD_LABELS[depositMethod as PaymentMethod] ?? depositMethod) : "Not selected yet"}
+              </span>
+            </div>
+            {booking.deposit_paid_at && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Paid on</span>
+                <span className="font-medium">{format(new Date(booking.deposit_paid_at), "MMM d, yyyy")}</span>
+              </div>
+            )}
+          </div>
+
           <Separator />
+
 
           <div className="flex flex-wrap gap-2">
             <Button
