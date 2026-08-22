@@ -83,11 +83,19 @@ Deno.serve(async (req) => {
     if (!METHODS.includes(method)) return reply({ error: "Invalid payment method" }, 400);
     if (!enabled.includes(method)) return reply({ error: `${method} payments are not enabled` }, 400);
 
-    const { data: booking } = await supabase
+    const { data: existingBooking } = await supabase
       .from("booking_requests")
-      .select("*")
+      .select("id")
       .eq("access_token", token)
       .maybeSingle();
+    if (!existingBooking) return reply({ error: "Booking not found" }, 404);
+
+    // Recompute from settled payments first so the outstanding amount is never stale.
+    const booking =
+      (await recomputeBookingState(supabase, existingBooking.id)) ??
+      (
+        await supabase.from("booking_requests").select("*").eq("id", existingBooking.id).maybeSingle()
+      ).data;
     if (!booking) return reply({ error: "Booking not found" }, 404);
     if (booking.status !== "accepted") {
       return reply({ error: "This booking has not been accepted by the DJ yet" }, 400);
@@ -107,13 +115,16 @@ Deno.serve(async (req) => {
     if (paymentType === "FULL") {
       bookingAmount = outstanding;
     } else if (paymentType === "DEPOSIT") {
-      if (alreadyPaid > 0) return reply({ error: "The deposit has already been paid" }, 400);
+      if (booking.deposit_payment_status === "PAID" || alreadyPaid > 0) {
+        return reply({ error: "The deposit has already been paid" }, 400);
+      }
       bookingAmount = Math.min(depositAmount || outstanding, outstanding);
     } else {
       if (outstanding <= 0) return reply({ error: "There is no balance outstanding" }, 400);
       bookingAmount = outstanding;
     }
     if (bookingAmount <= 0) return reply({ error: "Nothing left to pay" }, 400);
+
 
     // Crypto is always quoted against the booking currency by the provider.
     const payCurrency = (
