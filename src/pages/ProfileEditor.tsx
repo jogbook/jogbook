@@ -13,7 +13,40 @@ import { toast } from "sonner";
 import { ExternalLink, Plus, Trash2, Copy, Share2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
+type LinkItem = { label: string; url: string };
+
+const PRESET_MUSIC = ["Spotify"];
+const PRESET_SOCIALS = [
+  { label: "Instagram", placeholder: "https://instagram.com/handle" },
+  { label: "TikTok", placeholder: "https://tiktok.com/@handle" },
+  { label: "X", placeholder: "https://x.com/handle" },
+  { label: "RedNote", placeholder: "https://xiaohongshu.com/user/..." },
+];
+const PRESET_SOCIAL_LABELS = PRESET_SOCIALS.map((s) => s.label);
+
+const getPreset = (links: LinkItem[], label: string) =>
+  links.find((l) => l.label === label)?.url || "";
+
+const setPreset = (
+  links: LinkItem[],
+  setter: (v: LinkItem[]) => void,
+  label: string,
+  url: string,
+) => {
+  const idx = links.findIndex((l) => l.label === label);
+  if (idx === -1) {
+    if (!url) return;
+    setter([...links, { label, url }]);
+    return;
+  }
+  const next = [...links];
+  if (!url) next.splice(idx, 1);
+  else next[idx] = { label, url };
+  setter(next);
+};
+
 export default function ProfileEditor() {
+
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { data: profile, isLoading } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
@@ -241,14 +274,26 @@ export default function ProfileEditor() {
             <CardTitle>Music Links</CardTitle>
             <Button size="sm" variant="outline" onClick={() => setMusicLinks([...musicLinks, { label: "", url: "" }])}><Plus size={14} /></Button>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {musicLinks.map((link, i) => (
-              <div key={i} className="flex gap-2">
-                <Input placeholder="Label" value={link.label} onChange={(e) => { const n = [...musicLinks]; n[i].label = e.target.value; setMusicLinks(n); }} className="bg-background" />
-                <Input placeholder="URL" value={link.url} onChange={(e) => { const n = [...musicLinks]; n[i].url = e.target.value; setMusicLinks(n); }} className="bg-background flex-1" />
-                <Button size="icon" variant="ghost" onClick={() => setMusicLinks(musicLinks.filter((_, j) => j !== i))}><Trash2 size={14} /></Button>
-              </div>
-            ))}
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Spotify</Label>
+              <Input
+                value={getPreset(musicLinks, "Spotify")}
+                onChange={(e) => setPreset(musicLinks, setMusicLinks, "Spotify", e.target.value)}
+                placeholder="https://open.spotify.com/artist/..."
+                className="bg-background"
+              />
+              <p className="text-xs text-muted-foreground">Connect your Spotify artist or playlist page.</p>
+            </div>
+            {musicLinks.map((link, i) =>
+              PRESET_MUSIC.includes(link.label) ? null : (
+                <div key={i} className="flex gap-2">
+                  <Input placeholder="Label" value={link.label} onChange={(e) => { const n = [...musicLinks]; n[i].label = e.target.value; setMusicLinks(n); }} className="bg-background" />
+                  <Input placeholder="URL" value={link.url} onChange={(e) => { const n = [...musicLinks]; n[i].url = e.target.value; setMusicLinks(n); }} className="bg-background flex-1" />
+                  <Button size="icon" variant="ghost" onClick={() => setMusicLinks(musicLinks.filter((_, j) => j !== i))}><Trash2 size={14} /></Button>
+                </div>
+              )
+            )}
           </CardContent>
         </Card>
 
@@ -257,16 +302,32 @@ export default function ProfileEditor() {
             <CardTitle>Social Links</CardTitle>
             <Button size="sm" variant="outline" onClick={() => setSocialLinks([...socialLinks, { label: "", url: "" }])}><Plus size={14} /></Button>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {socialLinks.map((link, i) => (
-              <div key={i} className="flex gap-2">
-                <Input placeholder="Platform" value={link.label} onChange={(e) => { const n = [...socialLinks]; n[i].label = e.target.value; setSocialLinks(n); }} className="bg-background" />
-                <Input placeholder="URL" value={link.url} onChange={(e) => { const n = [...socialLinks]; n[i].url = e.target.value; setSocialLinks(n); }} className="bg-background flex-1" />
-                <Button size="icon" variant="ghost" onClick={() => setSocialLinks(socialLinks.filter((_, j) => j !== i))}><Trash2 size={14} /></Button>
-              </div>
-            ))}
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {PRESET_SOCIALS.map(({ label, placeholder }) => (
+                <div key={label} className="space-y-1.5">
+                  <Label className="text-xs">{label}</Label>
+                  <Input
+                    value={getPreset(socialLinks, label)}
+                    onChange={(e) => setPreset(socialLinks, setSocialLinks, label, e.target.value)}
+                    placeholder={placeholder}
+                    className="bg-background"
+                  />
+                </div>
+              ))}
+            </div>
+            {socialLinks.map((link, i) =>
+              PRESET_SOCIAL_LABELS.includes(link.label) ? null : (
+                <div key={i} className="flex gap-2">
+                  <Input placeholder="Platform" value={link.label} onChange={(e) => { const n = [...socialLinks]; n[i].label = e.target.value; setSocialLinks(n); }} className="bg-background" />
+                  <Input placeholder="URL" value={link.url} onChange={(e) => { const n = [...socialLinks]; n[i].url = e.target.value; setSocialLinks(n); }} className="bg-background flex-1" />
+                  <Button size="icon" variant="ghost" onClick={() => setSocialLinks(socialLinks.filter((_, j) => j !== i))}><Trash2 size={14} /></Button>
+                </div>
+              )
+            )}
           </CardContent>
         </Card>
+
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
