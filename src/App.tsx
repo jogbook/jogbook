@@ -10,6 +10,9 @@ import DashboardRouter from "./pages/DashboardRouter";
 import Dashboard from "./pages/Dashboard";
 import ProfileEditor from "./pages/ProfileEditor";
 import Requests from "./pages/Requests";
+import Earnings from "./pages/Earnings";
+import Payouts from "./pages/Payouts";
+import Checkout from "./pages/Checkout";
 
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
