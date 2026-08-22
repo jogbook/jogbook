@@ -14,6 +14,28 @@ const reply = (body: unknown, status = 200) =>
 
 const COUNTRY = /^[A-Z]{2}$/;
 
+const CRYPTO_NETWORKS: Record<string, string[]> = {
+  USDT: ["ethereum", "tron", "solana", "polygon"],
+  USDC: ["ethereum", "solana", "polygon", "base"],
+  SOL: ["solana"],
+  ETH: ["ethereum", "base", "arbitrum"],
+};
+
+const EVM_ADDRESS = /^0x[a-fA-F0-9]{40}$/;
+const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const TRON_ADDRESS = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
+
+function validateAddress(network: string, address: string): string | null {
+  if (!address) return "A wallet address is required";
+  if (network === "solana") {
+    return SOLANA_ADDRESS.test(address) ? null : "That doesn't look like a Solana address";
+  }
+  if (network === "tron") {
+    return TRON_ADDRESS.test(address) ? null : "That doesn't look like a Tron (TRC-20) address";
+  }
+  return EVM_ADDRESS.test(address) ? null : "That doesn't look like a valid 0x… address";
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return reply({ error: "Method not allowed" }, 405);
@@ -127,6 +149,61 @@ Deno.serve(async (req) => {
         .select()
         .maybeSingle();
       return reply({ status, account: updated });
+    }
+
+    if (action === "set_card_method") {
+      const { data: updated } = await supabase
+        .from("payout_accounts")
+        .upsert(
+          {
+            user_id: user.id,
+            dj_id: profile.id,
+            provider: provider.id,
+            payout_method: "CARD",
+            status: existing?.connected_account_id ? existing.status : "NOT_CONNECTED",
+            payouts_enabled: existing?.payouts_enabled ?? false,
+          },
+          { onConflict: "dj_id,provider" },
+        )
+        .select()
+        .maybeSingle();
+      return reply({ status: updated?.status ?? "NOT_CONNECTED", account: updated });
+    }
+
+    if (action === "set_crypto_method") {
+      const method = String(body.method ?? "").toUpperCase();
+      const network = String(body.network ?? "").toLowerCase();
+      const address = String(body.wallet_address ?? "").trim();
+      const allowed = CRYPTO_NETWORKS[method];
+      if (!allowed) return reply({ error: "Unsupported payout asset" }, 400);
+      if (!allowed.includes(network)) {
+        return reply({ error: `${method} payouts support: ${allowed.join(", ")}` }, 400);
+      }
+      const addressError = validateAddress(network, address);
+      if (addressError) return reply({ error: addressError }, 400);
+
+      const { data: updated } = await supabase
+        .from("payout_accounts")
+        .upsert(
+          {
+            user_id: user.id,
+            dj_id: profile.id,
+            provider: provider.id,
+            payout_method: method,
+            wallet_asset: method,
+            wallet_network: network,
+            wallet_address: address,
+            status: "PAYOUTS_ENABLED",
+            payouts_enabled: true,
+            details_submitted: true,
+            requirements: [],
+            last_synced_at: new Date().toISOString(),
+          },
+          { onConflict: "dj_id,provider" },
+        )
+        .select()
+        .maybeSingle();
+      return reply({ status: "PAYOUTS_ENABLED", account: updated });
     }
 
     if (action === "release") {

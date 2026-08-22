@@ -13,6 +13,37 @@ export type PayoutAccountStatus =
   | "PAYOUTS_ENABLED"
   | "RESTRICTED";
 export type DepositType = "PERCENTAGE" | "FIXED" | "FULL";
+export type PayoutMethod = "CARD" | "USDT" | "USDC" | "SOL" | "ETH";
+export type CryptoPayoutMethod = Exclude<PayoutMethod, "CARD">;
+
+export const PAYOUT_METHOD_LABELS: Record<PayoutMethod, string> = {
+  CARD: "Card / bank transfer",
+  USDT: "USDT (stablecoin)",
+  USDC: "USDC (stablecoin)",
+  SOL: "Solana (SOL)",
+  ETH: "Ethereum (ETH)",
+};
+
+/** Networks each crypto payout asset can be sent on. */
+export const PAYOUT_NETWORKS: Record<CryptoPayoutMethod, string[]> = {
+  USDT: ["ethereum", "tron", "solana", "polygon"],
+  USDC: ["ethereum", "solana", "polygon", "base"],
+  SOL: ["solana"],
+  ETH: ["ethereum", "base", "arbitrum"],
+};
+
+const EVM_ADDRESS = /^0x[a-fA-F0-9]{40}$/;
+const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const TRON_ADDRESS = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
+
+/** Client-side sanity check; the edge function validates again server-side. */
+export function validateWalletAddress(network: string, address: string): string | null {
+  const value = address.trim();
+  if (!value) return "A wallet address is required";
+  if (network === "solana") return SOLANA_ADDRESS.test(value) ? null : "That doesn't look like a Solana address";
+  if (network === "tron") return TRON_ADDRESS.test(value) ? null : "That doesn't look like a Tron (TRC-20) address";
+  return EVM_ADDRESS.test(value) ? null : "That doesn't look like a valid 0x… address";
+}
 
 export const METHOD_LABELS: Record<PaymentMethod, string> = {
   CARD: "Card",
@@ -155,6 +186,21 @@ export function syncPayoutAccount() {
 
 export function releasePayout(payoutId: string) {
   return invoke<{ payout: any }>("payouts", { action: "release", payout_id: payoutId });
+}
+
+export function saveCryptoPayoutMethod(input: {
+  method: CryptoPayoutMethod;
+  network: string;
+  wallet_address: string;
+}) {
+  return invoke<{ status: PayoutAccountStatus; account: any }>("payouts", {
+    action: "set_crypto_method",
+    ...input,
+  });
+}
+
+export function switchToCardPayouts() {
+  return invoke<{ status: PayoutAccountStatus; account: any }>("payouts", { action: "set_card_method" });
 }
 
 export async function getPayoutAccount() {
