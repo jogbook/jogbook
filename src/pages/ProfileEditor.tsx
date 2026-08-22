@@ -301,14 +301,14 @@ export default function ProfileEditor() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Spotify</Label>
+              <Label>Spotify Artist ID</Label>
               <Input
-                value={getPreset(musicLinks, "Spotify")}
-                onChange={(e) => setPreset(musicLinks, setMusicLinks, "Spotify", e.target.value)}
-                placeholder="https://open.spotify.com/artist/..."
+                value={spotifyArtistId}
+                onChange={(e) => setSpotifyArtistId(e.target.value)}
+                placeholder="your-artist-id"
                 className="bg-background"
               />
-              <p className="text-xs text-muted-foreground">Connect your Spotify artist or playlist page.</p>
+              <p className="text-xs text-muted-foreground">Paste your Spotify artist username or ID — the link will be built as https://open.spotify.com/artist/{spotifyArtistId}.</p>
             </div>
             {musicLinks.map((link, i) =>
               PRESET_MUSIC.includes(link.label) ? null : (
