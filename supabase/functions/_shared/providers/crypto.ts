@@ -1,4 +1,4 @@
-// Crypto adapter (USDC / USDT / BTC).
+// Crypto adapter (USDC / USDT / BTC / SOL / ETH).
 // We never build blockchain handling ourselves: a hosted crypto payment
 // provider generates the charge, address and amount, and confirms via webhook.
 // Default implementation targets the Coinbase Commerce API shape, which
@@ -21,6 +21,8 @@ const NETWORKS: Record<string, string> = {
   USDC: Deno.env.get("CRYPTO_NETWORK_USDC") ?? "ethereum",
   USDT: Deno.env.get("CRYPTO_NETWORK_USDT") ?? "ethereum",
   BTC: "bitcoin",
+  SOL: "solana",
+  ETH: Deno.env.get("CRYPTO_NETWORK_ETH") ?? "ethereum",
 };
 
 function apiKey() {
@@ -60,6 +62,8 @@ const ASSET_KEYS: Record<string, string[]> = {
   BTC: ["bitcoin", "BTC"],
   USDC: ["usdc", "USDC"],
   USDT: ["usdt", "tether", "USDT"],
+  SOL: ["solana", "sol", "SOL"],
+  ETH: ["ethereum", "eth", "ETH"],
 };
 
 function pickAddress(charge: Record<string, any>, asset: string): { address?: string; amount?: number } {
@@ -98,12 +102,12 @@ async function verifySignature(rawBody: string, headers: Headers): Promise<void>
 
 export const cryptoPaymentProvider: PaymentProvider = {
   id: "crypto",
-  methods: ["USDC", "USDT", "BTC"] as PaymentMethod[],
+  methods: ["USDC", "USDT", "BTC", "SOL", "ETH"] as PaymentMethod[],
   isConfigured: () => missing().length === 0,
   missingSecrets: missing,
 
   async createCheckout(req: CheckoutRequest): Promise<CheckoutResult> {
-    const asset = req.method; // USDC | USDT | BTC
+    const asset = req.method; // USDC | USDT | BTC | SOL | ETH
     // The provider quotes the crypto amount against the booking currency.
     const settlementCurrency = req.currency.toUpperCase();
 

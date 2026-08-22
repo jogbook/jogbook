@@ -1,7 +1,7 @@
 // Shared payment/payout domain types for JogBook.
 // These mirror the database enums exactly.
 
-export type PaymentMethod = "CARD" | "PAYPAL" | "USDC" | "USDT" | "BTC";
+export type PaymentMethod = "CARD" | "PAYPAL" | "USDC" | "USDT" | "BTC" | "SOL" | "ETH";
 export type PaymentType = "DEPOSIT" | "BALANCE" | "FULL";
 export type PaymentStatus =
   | "PENDING"
