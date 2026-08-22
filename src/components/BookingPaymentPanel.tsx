@@ -20,13 +20,34 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
+  METHOD_LABELS,
   bookingPayUrl,
   formatMoney,
   markGigCompleted,
   requestBalance,
   setBookingTerms,
   type DepositType,
+  type PaymentMethod,
 } from "@/lib/payments";
+
+const DEPOSIT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending",
+  PROCESSING: "Processing",
+  PAID: "Paid",
+  FAILED: "Failed",
+  REFUNDED: "Refunded",
+  CANCELLED: "Cancelled",
+};
+
+const DEPOSIT_STATUS_STYLES: Record<string, string> = {
+  PENDING: "bg-muted text-muted-foreground border-border",
+  PROCESSING: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  PAID: "bg-primary/15 text-primary border-primary/25",
+  FAILED: "bg-destructive/15 text-destructive border-destructive/25",
+  REFUNDED: "bg-muted text-muted-foreground border-border",
+  CANCELLED: "bg-muted text-muted-foreground border-border",
+};
+
 
 interface Props {
   booking: any;
@@ -69,8 +90,16 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
   const paid = Number(booking.amount_paid ?? 0);
   const deposit = Number(booking.deposit_amount ?? 0);
   const outstanding = Math.round((performanceFee - paid) * 100) / 100;
+  const remaining = Math.max(
+    booking.balance_amount != null && paid > 0 ? Number(booking.balance_amount) : outstanding,
+    0,
+  );
+  const depositStatus = String(booking.deposit_payment_status ?? "PENDING");
+  const depositPaid = Number(booking.deposit_paid_amount ?? 0);
+  const depositMethod = booking.deposit_payment_method as string | null;
   const hasTerms = performanceFee > 0;
   const locked = paid > 0;
+
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["booking-requests"] });
 
