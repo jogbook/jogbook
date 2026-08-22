@@ -107,6 +107,10 @@ export default function ProfileEditor() {
     if (!profile) return;
     setSaving(true);
     try {
+      const nonSpotifyMusic = musicLinks.filter((l) => l.label !== "Spotify");
+      const finalMusicLinks = spotifyArtistId
+        ? [...nonSpotifyMusic, { label: "Spotify", url: spotifyArtistIdToUrl(spotifyArtistId) }]
+        : nonSpotifyMusic;
       await updateProfile(profile.id, {
         name,
         bio,
@@ -117,7 +121,7 @@ export default function ProfileEditor() {
         slug,
         press_kit_url: pressKitUrl,
         soundcloud_url: soundcloudUrl,
-        music_links: musicLinks,
+        music_links: finalMusicLinks,
         social_links: socialLinks,
         past_events: pastEvents,
       });
