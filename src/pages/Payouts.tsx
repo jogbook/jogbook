@@ -66,8 +66,10 @@ export default function Payouts() {
   const activeMethod = method ?? savedMethod;
   const isCrypto = activeMethod !== "CARD";
   const networks = isCrypto ? PAYOUT_NETWORKS[activeMethod as CryptoPayoutMethod] : [];
-  const activeNetwork = network ?? (savedMethod === activeMethod ? account?.wallet_network ?? null : null) ?? networks[0] ?? "";
-  const activeWallet = wallet ?? (savedMethod === activeMethod ? account?.wallet_address ?? "" : "");
+  const saved = savedMethod === activeMethod ? account : null;
+  const savedNetwork = (saved?.wallet_network as string | null) || null;
+  const activeNetwork = network || savedNetwork || networks[0] || "";
+  const activeWallet = wallet ?? ((saved?.wallet_address as string | null) || "");
 
   const status = (account?.status ?? "NOT_CONNECTED") as PayoutAccountStatus;
   const copy = PAYOUT_ACCOUNT_COPY[status];
