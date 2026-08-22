@@ -189,7 +189,7 @@ export const paypalPaymentProvider: PaymentProvider = {
         };
       case "PAYMENT.CAPTURE.DENIED":
       case "PAYMENT.CAPTURE.DECLINED":
-ېcase "CHECKOUT.ORDER.VOIDED":
+case "CHECKOUT.ORDER.VOIDED":
         return { ...base, kind: "payment_failed", providerPaymentId: r.id, paymentId };
       case "PAYMENT.CAPTURE.REFUNDED":
         return { ...base, kind: "payment_refunded", providerPaymentId: r.id, paymentId };
