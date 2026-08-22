@@ -101,6 +101,42 @@ function PressKitSection({ pastEvents, pressKitUrl }: { pastEvents: any[]; press
   );
 }
 
+function toSpotifyEmbed(url: string) {
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes("spotify.com")) return null;
+    if (u.pathname.startsWith("/embed")) return `https://open.spotify.com${u.pathname}`;
+    return `https://open.spotify.com/embed${u.pathname}?theme=0`;
+  } catch {
+    return null;
+  }
+}
+
+function SpotifySection({ spotifyUrl }: { spotifyUrl?: string }) {
+  const embed = spotifyUrl ? toSpotifyEmbed(spotifyUrl) : null;
+  if (!embed) return null;
+  return (
+    <>
+      <section>
+        <h2 className="text-sm font-bold mb-3 text-foreground">Spotify</h2>
+        <div className="rounded-lg overflow-hidden bg-secondary border border-border">
+          <iframe
+            title="Spotify player"
+            src={embed}
+            width="100%"
+            height="352"
+            frameBorder="0"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            className="w-full"
+          />
+        </div>
+      </section>
+      <hr className="my-6 border-border" />
+    </>
+  );
+}
+
 function SoundCloudSection({ soundcloudLink }: { soundcloudLink: any }) {
   if (!soundcloudLink) return null;
   return (
@@ -123,6 +159,7 @@ function SoundCloudSection({ soundcloudLink }: { soundcloudLink: any }) {
     </>
   );
 }
+
 
 function LinksSection({ title, links }: { title: string; links: any[] }) {
   if (links.length === 0) return null;
