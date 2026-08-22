@@ -18,6 +18,7 @@ import {
   formatCrypto,
   formatMoney,
   getCheckoutSummary,
+  isCryptoMethod,
   METHOD_LABELS,
   type PaymentMethod,
   type PaymentType,
@@ -28,7 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import jogbookLogo from "@/assets/jogbook-logo.png";
 
-const METHOD_ORDER: PaymentMethod[] = ["CARD", "PAYPAL", "USDC", "USDT", "BTC"];
+const METHOD_ORDER: PaymentMethod[] = ["CARD", "PAYPAL", "USDC", "USDT", "SOL", "ETH", "BTC"];
 
 export default function Checkout() {
   const { token = "" } = useParams();
@@ -77,7 +78,7 @@ export default function Checkout() {
   }, [depositPaid, deposit, fee]);
 
   const methods = data?.settings.methods.filter((m) => METHOD_ORDER.includes(m.method)) ?? [];
-  const isCrypto = method === "USDC" || method === "USDT" || method === "BTC";
+  const isCrypto = isCryptoMethod(method);
 
   const handlePay = async () => {
     setStarting(true);

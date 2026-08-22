@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 
-export type PaymentMethod = "CARD" | "PAYPAL" | "USDC" | "USDT" | "BTC";
+export type PaymentMethod = "CARD" | "PAYPAL" | "USDC" | "USDT" | "BTC" | "SOL" | "ETH";
 export type PaymentType = "DEPOSIT" | "BALANCE" | "FULL";
 export type PaymentStatus = "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REFUNDED" | "CANCELLED";
 export type PayoutStatus = "NOT_ELIGIBLE" | "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REVERSED";
@@ -51,7 +51,16 @@ export const METHOD_LABELS: Record<PaymentMethod, string> = {
   USDC: "USDC",
   USDT: "USDT",
   BTC: "Bitcoin",
+  SOL: "Solana",
+  ETH: "Ethereum",
 };
+
+/** Payment methods that settle on-chain. */
+export const CRYPTO_PAYMENT_METHODS: PaymentMethod[] = ["USDC", "USDT", "BTC", "SOL", "ETH"];
+
+export function isCryptoMethod(method: PaymentMethod) {
+  return CRYPTO_PAYMENT_METHODS.includes(method);
+}
 
 export const PAYMENT_STATUS_STYLES: Record<PaymentStatus, string> = {
   PENDING: "bg-muted text-muted-foreground border-border",

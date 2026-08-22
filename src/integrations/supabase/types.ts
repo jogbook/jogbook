@@ -622,7 +622,14 @@ export type Database = {
         | "REFUNDED"
         | "CANCELLED"
       deposit_type: "PERCENTAGE" | "FIXED" | "FULL"
-      payment_method: "CARD" | "PAYPAL" | "USDC" | "USDT" | "BTC"
+      payment_method:
+        | "CARD"
+        | "PAYPAL"
+        | "USDC"
+        | "USDT"
+        | "BTC"
+        | "SOL"
+        | "ETH"
       payment_status:
         | "PENDING"
         | "PROCESSING"
@@ -785,7 +792,7 @@ export const Constants = {
         "CANCELLED",
       ],
       deposit_type: ["PERCENTAGE", "FIXED", "FULL"],
-      payment_method: ["CARD", "PAYPAL", "USDC", "USDT", "BTC"],
+      payment_method: ["CARD", "PAYPAL", "USDC", "USDT", "BTC", "SOL", "ETH"],
       payment_status: [
         "PENDING",
         "PROCESSING",
