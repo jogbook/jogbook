@@ -28,6 +28,7 @@ export default function Requests() {
     queryFn: () => getBookingRequests(profile!.id),
     enabled: !!profile?.id,
   });
+  const { data: settings } = useQuery({ queryKey: ["platform-settings"], queryFn: getPlatformSettings });
 
   const filtered = filter === "all" ? requests : requests.filter((r: any) => r.status === filter);
 
