@@ -10,6 +10,9 @@ import DashboardRouter from "./pages/DashboardRouter";
 import Dashboard from "./pages/Dashboard";
 import ProfileEditor from "./pages/ProfileEditor";
 import Requests from "./pages/Requests";
+import Earnings from "./pages/Earnings";
+import Payouts from "./pages/Payouts";
+import Checkout from "./pages/Checkout";
 
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
@@ -44,6 +47,9 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfileEditor /></ProtectedRoute>} />
             <Route path="/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
+            <Route path="/earnings" element={<ProtectedRoute><Earnings /></ProtectedRoute>} />
+            <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
+            <Route path="/pay/:token" element={<Checkout />} />
             <Route path="/dj/:slug" element={<PublicProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -49,40 +49,85 @@ export type Database = {
       }
       booking_requests: {
         Row: {
+          access_token: string
+          amount_paid: number
+          balance_amount: number | null
+          balance_requested_at: string | null
+          booking_currency: string
           client_email: string
           client_name: string
           client_phone: string | null
+          client_user_id: string | null
+          completed_at: string | null
           created_at: string
+          deposit_amount: number | null
+          deposit_type: Database["public"]["Enums"]["deposit_type"]
+          deposit_value: number
           dj_id: string
           event_date: string | null
           event_type: string
+          gig_state: Database["public"]["Enums"]["booking_gig_state"]
           id: string
           message: string | null
+          payment_deadline: string | null
+          payment_state: Database["public"]["Enums"]["booking_payment_state"]
+          performance_fee: number | null
           status: string
+          terms: string | null
         }
         Insert: {
+          access_token?: string
+          amount_paid?: number
+          balance_amount?: number | null
+          balance_requested_at?: string | null
+          booking_currency?: string
           client_email: string
           client_name: string
           client_phone?: string | null
+          client_user_id?: string | null
+          completed_at?: string | null
           created_at?: string
+          deposit_amount?: number | null
+          deposit_type?: Database["public"]["Enums"]["deposit_type"]
+          deposit_value?: number
           dj_id: string
           event_date?: string | null
           event_type?: string
+          gig_state?: Database["public"]["Enums"]["booking_gig_state"]
           id?: string
           message?: string | null
+          payment_deadline?: string | null
+          payment_state?: Database["public"]["Enums"]["booking_payment_state"]
+          performance_fee?: number | null
           status?: string
+          terms?: string | null
         }
         Update: {
+          access_token?: string
+          amount_paid?: number
+          balance_amount?: number | null
+          balance_requested_at?: string | null
+          booking_currency?: string
           client_email?: string
           client_name?: string
           client_phone?: string | null
+          client_user_id?: string | null
+          completed_at?: string | null
           created_at?: string
+          deposit_amount?: number | null
+          deposit_type?: Database["public"]["Enums"]["deposit_type"]
+          deposit_value?: number
           dj_id?: string
           event_date?: string | null
           event_type?: string
+          gig_state?: Database["public"]["Enums"]["booking_gig_state"]
           id?: string
           message?: string | null
+          payment_deadline?: string | null
+          payment_state?: Database["public"]["Enums"]["booking_payment_state"]
+          performance_fee?: number | null
           status?: string
+          terms?: string | null
         }
         Relationships: [
           {
@@ -93,6 +138,303 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          booking_amount: number
+          booking_currency: string
+          booking_id: string
+          client_email: string
+          client_user_id: string | null
+          confirmation_status: string | null
+          created_at: string
+          crypto_address: string | null
+          crypto_amount: number | null
+          crypto_asset: string | null
+          crypto_network: string | null
+          currency: string
+          dj_id: string
+          exchange_rate: number
+          failure_reason: string | null
+          id: string
+          metadata: Json
+          paid_at: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          provider: string
+          provider_checkout_url: string | null
+          provider_payment_id: string | null
+          refunded_at: string | null
+          transaction_hash: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          booking_amount: number
+          booking_currency: string
+          booking_id: string
+          client_email?: string
+          client_user_id?: string | null
+          confirmation_status?: string | null
+          created_at?: string
+          crypto_address?: string | null
+          crypto_amount?: number | null
+          crypto_asset?: string | null
+          crypto_network?: string | null
+          currency: string
+          dj_id: string
+          exchange_rate?: number
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json
+          paid_at?: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          provider: string
+          provider_checkout_url?: string | null
+          provider_payment_id?: string | null
+          refunded_at?: string | null
+          transaction_hash?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          booking_amount?: number
+          booking_currency?: string
+          booking_id?: string
+          client_email?: string
+          client_user_id?: string | null
+          confirmation_status?: string | null
+          created_at?: string
+          crypto_address?: string | null
+          crypto_amount?: number | null
+          crypto_asset?: string | null
+          crypto_network?: string | null
+          currency?: string
+          dj_id?: string
+          exchange_rate?: number
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json
+          paid_at?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          provider?: string
+          provider_checkout_url?: string | null
+          provider_payment_id?: string | null
+          refunded_at?: string | null
+          transaction_hash?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "booking_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_dj_id_fkey"
+            columns: ["dj_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_accounts: {
+        Row: {
+          charges_enabled: boolean
+          connected_account_id: string | null
+          country: string | null
+          created_at: string
+          details_submitted: boolean
+          dj_id: string
+          id: string
+          last_synced_at: string | null
+          payout_currency: string | null
+          payouts_enabled: boolean
+          provider: string
+          requirements: Json
+          status: Database["public"]["Enums"]["payout_account_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          charges_enabled?: boolean
+          connected_account_id?: string | null
+          country?: string | null
+          created_at?: string
+          details_submitted?: boolean
+          dj_id: string
+          id?: string
+          last_synced_at?: string | null
+          payout_currency?: string | null
+          payouts_enabled?: boolean
+          provider?: string
+          requirements?: Json
+          status?: Database["public"]["Enums"]["payout_account_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          charges_enabled?: boolean
+          connected_account_id?: string | null
+          country?: string | null
+          created_at?: string
+          details_submitted?: boolean
+          dj_id?: string
+          id?: string
+          last_synced_at?: string | null
+          payout_currency?: string | null
+          payouts_enabled?: boolean
+          provider?: string
+          requirements?: Json
+          status?: Database["public"]["Enums"]["payout_account_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_accounts_dj_id_fkey"
+            columns: ["dj_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          booking_id: string
+          connected_account_id: string | null
+          created_at: string
+          currency: string
+          dj_id: string
+          eligible_at: string | null
+          failure_reason: string | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          paid_at: string | null
+          payment_id: string | null
+          payout_status: Database["public"]["Enums"]["payout_status"]
+          platform_fee: number
+          platform_fee_percent: number
+          provider: string
+          provider_payout_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          connected_account_id?: string | null
+          created_at?: string
+          currency: string
+          dj_id: string
+          eligible_at?: string | null
+          failure_reason?: string | null
+          gross_amount: number
+          id?: string
+          net_amount: number
+          paid_at?: string | null
+          payment_id?: string | null
+          payout_status?: Database["public"]["Enums"]["payout_status"]
+          platform_fee: number
+          platform_fee_percent: number
+          provider?: string
+          provider_payout_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          connected_account_id?: string | null
+          created_at?: string
+          currency?: string
+          dj_id?: string
+          eligible_at?: string | null
+          failure_reason?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          paid_at?: string | null
+          payment_id?: string | null
+          payout_status?: Database["public"]["Enums"]["payout_status"]
+          platform_fee?: number
+          platform_fee_percent?: number
+          provider?: string
+          provider_payout_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "booking_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_dj_id_fkey"
+            columns: ["dj_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_settings: {
+        Row: {
+          balance_due_days: number
+          commission_percent: number
+          created_at: string
+          default_currency: string
+          default_deposit_percent: number
+          default_deposit_type: Database["public"]["Enums"]["deposit_type"]
+          id: boolean
+          payout_timing: Database["public"]["Enums"]["payout_timing"]
+          supported_currencies: string[]
+          supported_payment_methods: string[]
+          updated_at: string
+        }
+        Insert: {
+          balance_due_days?: number
+          commission_percent?: number
+          created_at?: string
+          default_currency?: string
+          default_deposit_percent?: number
+          default_deposit_type?: Database["public"]["Enums"]["deposit_type"]
+          id?: boolean
+          payout_timing?: Database["public"]["Enums"]["payout_timing"]
+          supported_currencies?: string[]
+          supported_payment_methods?: string[]
+          updated_at?: string
+        }
+        Update: {
+          balance_due_days?: number
+          commission_percent?: number
+          created_at?: string
+          default_currency?: string
+          default_deposit_percent?: number
+          default_deposit_type?: Database["public"]["Enums"]["deposit_type"]
+          id?: boolean
+          payout_timing?: Database["public"]["Enums"]["payout_timing"]
+          supported_currencies?: string[]
+          supported_payment_methods?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -190,6 +532,42 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_id: string
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          processing_status: string
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_id: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          processing_status?: string
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          processing_status?: string
+          provider?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -211,6 +589,39 @@ export type Database = {
     }
     Enums: {
       app_role: "dj" | "booker"
+      booking_gig_state: "PENDING" | "CONFIRMED" | "GIG_COMPLETED" | "CANCELLED"
+      booking_payment_state:
+        | "UNPAID"
+        | "DEPOSIT_PAID"
+        | "BALANCE_DUE"
+        | "PAYMENT_COMPLETE"
+        | "REFUNDED"
+        | "CANCELLED"
+      deposit_type: "PERCENTAGE" | "FIXED" | "FULL"
+      payment_method: "CARD" | "PAYPAL" | "USDC" | "USDT" | "BTC"
+      payment_status:
+        | "PENDING"
+        | "PROCESSING"
+        | "PAID"
+        | "FAILED"
+        | "REFUNDED"
+        | "CANCELLED"
+      payment_type: "DEPOSIT" | "BALANCE" | "FULL"
+      payout_account_status:
+        | "NOT_CONNECTED"
+        | "ONBOARDING"
+        | "PENDING_VERIFICATION"
+        | "VERIFIED"
+        | "PAYOUTS_ENABLED"
+        | "RESTRICTED"
+      payout_status:
+        | "NOT_ELIGIBLE"
+        | "PENDING"
+        | "PROCESSING"
+        | "PAID"
+        | "FAILED"
+        | "REVERSED"
+      payout_timing: "IMMEDIATE" | "ON_GIG_COMPLETE" | "MANUAL"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -339,6 +750,43 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["dj", "booker"],
+      booking_gig_state: ["PENDING", "CONFIRMED", "GIG_COMPLETED", "CANCELLED"],
+      booking_payment_state: [
+        "UNPAID",
+        "DEPOSIT_PAID",
+        "BALANCE_DUE",
+        "PAYMENT_COMPLETE",
+        "REFUNDED",
+        "CANCELLED",
+      ],
+      deposit_type: ["PERCENTAGE", "FIXED", "FULL"],
+      payment_method: ["CARD", "PAYPAL", "USDC", "USDT", "BTC"],
+      payment_status: [
+        "PENDING",
+        "PROCESSING",
+        "PAID",
+        "FAILED",
+        "REFUNDED",
+        "CANCELLED",
+      ],
+      payment_type: ["DEPOSIT", "BALANCE", "FULL"],
+      payout_account_status: [
+        "NOT_CONNECTED",
+        "ONBOARDING",
+        "PENDING_VERIFICATION",
+        "VERIFIED",
+        "PAYOUTS_ENABLED",
+        "RESTRICTED",
+      ],
+      payout_status: [
+        "NOT_ELIGIBLE",
+        "PENDING",
+        "PROCESSING",
+        "PAID",
+        "FAILED",
+        "REVERSED",
+      ],
+      payout_timing: ["IMMEDIATE", "ON_GIG_COMPLETE", "MANUAL"],
     },
   },
 } as const

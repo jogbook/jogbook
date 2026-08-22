@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile, getBookingRequests, updateBookingStatus, deleteBookingRequest } from "@/lib/supabase-helpers";
+import { getPlatformSettings } from "@/lib/payments";
+import { BookingPaymentPanel } from "@/components/BookingPaymentPanel";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ export default function Requests() {
     queryFn: () => getBookingRequests(profile!.id),
     enabled: !!profile?.id,
   });
+  const { data: settings } = useQuery({ queryKey: ["platform-settings"], queryFn: getPlatformSettings });
 
   const filtered = filter === "all" ? requests : requests.filter((r: any) => r.status === filter);
 
@@ -101,10 +104,13 @@ export default function Requests() {
                   </div>
                   {r.message && <p className="text-sm text-muted-foreground">{r.message}</p>}
                   {r.status === "accepted" && (
-                    <div className="flex gap-4 text-sm">
-                      <span className="flex items-center gap-1 text-muted-foreground"><Mail size={14} /> {r.client_email}</span>
-                      {r.client_phone && <span className="flex items-center gap-1 text-muted-foreground"><Phone size={14} /> {r.client_phone}</span>}
-                    </div>
+                    <>
+                      <div className="flex gap-4 text-sm">
+                        <span className="flex items-center gap-1 text-muted-foreground"><Mail size={14} /> {r.client_email}</span>
+                        {r.client_phone && <span className="flex items-center gap-1 text-muted-foreground"><Phone size={14} /> {r.client_phone}</span>}
+                      </div>
+                      <BookingPaymentPanel booking={r} settings={settings} />
+                    </>
                   )}
                 </CardContent>
               </Card>
