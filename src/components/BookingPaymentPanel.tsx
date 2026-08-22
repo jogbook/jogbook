@@ -170,7 +170,17 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
                   <div className="space-y-1.5">
                     <Label htmlFor="dv">{depositType === "PERCENTAGE" ? "Percent" : "Amount"}</Label>
                     <Input id="dv" type="number" min="0" step="0.01" value={depositValue} onChange={(e) => setDepositValue(e.target.value)} />
-                  </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {profileAcceptsDeposit
+                  ? `Your profile default: ${
+                      profileDepositType === "FIXED"
+                        ? formatMoney(profileDepositValue, currency)
+                        : `${profileDepositValue}%`
+                    } deposit.`
+                  : "Your profile has deposits switched off, so full payment upfront is pre-selected."}
+              </p>
+
                 )}
               </div>
 
