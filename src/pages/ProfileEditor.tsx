@@ -95,7 +95,9 @@ export default function ProfileEditor() {
       setSlug(profile.slug || "");
       setPressKitUrl((profile as any).press_kit_url || "");
       setSoundcloudUrl((profile as any).soundcloud_url || "");
-      setMusicLinks(Array.isArray(profile.music_links) ? profile.music_links as any[] : []);
+      const loadedMusicLinks = Array.isArray(profile.music_links) ? profile.music_links as any[] : [];
+      setMusicLinks(loadedMusicLinks);
+      setSpotifyArtistId(spotifyUrlToArtistId(getPreset(loadedMusicLinks, "Spotify")));
       setSocialLinks(Array.isArray(profile.social_links) ? profile.social_links as any[] : []);
       setPastEvents(Array.isArray(profile.past_events) ? profile.past_events as any[] : []);
     }
