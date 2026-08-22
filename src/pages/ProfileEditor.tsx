@@ -13,7 +13,40 @@ import { toast } from "sonner";
 import { ExternalLink, Plus, Trash2, Copy, Share2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
+type LinkItem = { label: string; url: string };
+
+const PRESET_MUSIC = ["Spotify"];
+const PRESET_SOCIALS = [
+  { label: "Instagram", placeholder: "https://instagram.com/handle" },
+  { label: "TikTok", placeholder: "https://tiktok.com/@handle" },
+  { label: "X", placeholder: "https://x.com/handle" },
+  { label: "RedNote", placeholder: "https://xiaohongshu.com/user/..." },
+];
+const PRESET_SOCIAL_LABELS = PRESET_SOCIALS.map((s) => s.label);
+
+const getPreset = (links: LinkItem[], label: string) =>
+  links.find((l) => l.label === label)?.url || "";
+
+const setPreset = (
+  links: LinkItem[],
+  setter: (v: LinkItem[]) => void,
+  label: string,
+  url: string,
+) => {
+  const idx = links.findIndex((l) => l.label === label);
+  if (idx === -1) {
+    if (!url) return;
+    setter([...links, { label, url }]);
+    return;
+  }
+  const next = [...links];
+  if (!url) next.splice(idx, 1);
+  else next[idx] = { label, url };
+  setter(next);
+};
+
 export default function ProfileEditor() {
+
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { data: profile, isLoading } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
