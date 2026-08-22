@@ -6,6 +6,7 @@
 // No payment is ever marked PAID here. Only the verified webhook does that.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { getSettings, json, serviceClient } from "../_shared/db.ts";
+import { recomputeBookingState } from "../_shared/ledger.ts";
 import { commissionSplit, round2 } from "../_shared/money.ts";
 import { quote } from "../_shared/fx.ts";
 import { availableMethods, providerForMethod } from "../_shared/providers/index.ts";
@@ -37,7 +38,7 @@ Deno.serve(async (req) => {
       const { data: booking } = await supabase
         .from("booking_requests")
         .select(
-          "id, client_name, client_email, event_date, event_type, message, status, booking_currency, performance_fee, deposit_type, deposit_value, deposit_amount, balance_amount, amount_paid, payment_deadline, terms, payment_state, gig_state, dj_id",
+          "id, client_name, client_email, event_date, event_type, message, status, booking_currency, performance_fee, deposit_type, deposit_value, deposit_amount, balance_amount, amount_paid, payment_deadline, terms, payment_state, gig_state, dj_id, deposit_payment_status, deposit_paid_amount, deposit_paid_at, deposit_payment_method",
         )
         .eq("access_token", token)
         .maybeSingle();
@@ -82,11 +83,19 @@ Deno.serve(async (req) => {
     if (!METHODS.includes(method)) return reply({ error: "Invalid payment method" }, 400);
     if (!enabled.includes(method)) return reply({ error: `${method} payments are not enabled` }, 400);
 
-    const { data: booking } = await supabase
+    const { data: existingBooking } = await supabase
       .from("booking_requests")
-      .select("*")
+      .select("id")
       .eq("access_token", token)
       .maybeSingle();
+    if (!existingBooking) return reply({ error: "Booking not found" }, 404);
+
+    // Recompute from settled payments first so the outstanding amount is never stale.
+    const booking =
+      (await recomputeBookingState(supabase, existingBooking.id)) ??
+      (
+        await supabase.from("booking_requests").select("*").eq("id", existingBooking.id).maybeSingle()
+      ).data;
     if (!booking) return reply({ error: "Booking not found" }, 404);
     if (booking.status !== "accepted") {
       return reply({ error: "This booking has not been accepted by the DJ yet" }, 400);
@@ -106,13 +115,16 @@ Deno.serve(async (req) => {
     if (paymentType === "FULL") {
       bookingAmount = outstanding;
     } else if (paymentType === "DEPOSIT") {
-      if (alreadyPaid > 0) return reply({ error: "The deposit has already been paid" }, 400);
+      if (booking.deposit_payment_status === "PAID" || alreadyPaid > 0) {
+        return reply({ error: "The deposit has already been paid" }, 400);
+      }
       bookingAmount = Math.min(depositAmount || outstanding, outstanding);
     } else {
       if (outstanding <= 0) return reply({ error: "There is no balance outstanding" }, 400);
       bookingAmount = outstanding;
     }
     if (bookingAmount <= 0) return reply({ error: "Nothing left to pay" }, 400);
+
 
     // Crypto is always quoted against the booking currency by the provider.
     const payCurrency = (
@@ -233,6 +245,16 @@ Deno.serve(async (req) => {
         confirmation_status: result.confirmationStatus ?? null,
       })
       .eq("id", payment.id);
+
+    // Surface the pending deposit + selected method on the booking for the DJ.
+    if (paymentType !== "BALANCE" && booking.deposit_payment_status !== "PAID") {
+      await supabase
+        .from("booking_requests")
+        .update({ deposit_payment_status: "PENDING", deposit_payment_method: method })
+        .eq("id", booking.id);
+    }
+
+
 
     return reply({
       payment_id: payment.id,

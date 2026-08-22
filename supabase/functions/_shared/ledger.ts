@@ -18,14 +18,31 @@ export async function recomputeBookingState(supabase: SupabaseClient, bookingId:
 
   const { data: payments } = await supabase
     .from("payments")
-    .select("amount, booking_amount, payment_status, payment_type")
-    .eq("booking_id", bookingId);
+    .select("amount, booking_amount, payment_status, payment_type, payment_method, paid_at, created_at")
+    .eq("booking_id", bookingId)
+    .order("created_at", { ascending: false });
 
   const paid = (payments ?? []).filter((p) => p.payment_status === "PAID");
   const refunded = (payments ?? []).filter((p) => p.payment_status === "REFUNDED");
   // Booking-currency amounts are canonical for accounting.
   const amountPaid = round2(paid.reduce((sum, p) => sum + Number(p.booking_amount), 0));
   const fee = Number(booking.performance_fee ?? 0);
+  // Remaining balance always derives from what has actually settled.
+  const balanceAmount = fee > 0 ? Math.max(round2(fee - amountPaid), 0) : 0;
+
+  // Deposit tracking: the DEPOSIT (or FULL upfront) payment for this booking.
+  const depositPayments = (payments ?? []).filter(
+    (p) => p.payment_type === "DEPOSIT" || p.payment_type === "FULL",
+  );
+  const depositPaidRows = depositPayments.filter((p) => p.payment_status === "PAID");
+  const depositRow =
+    depositPaidRows[0] ??
+    depositPayments.find((p) => ["PROCESSING", "PENDING"].includes(p.payment_status)) ??
+    depositPayments[0] ??
+    null;
+  const depositPaidAmount = round2(
+    depositPaidRows.reduce((sum, p) => sum + Number(p.booking_amount), 0),
+  );
 
   let paymentState: string;
   if (paid.length === 0) {
@@ -43,12 +60,22 @@ export async function recomputeBookingState(supabase: SupabaseClient, bookingId:
 
   const { data: updated } = await supabase
     .from("booking_requests")
-    .update({ amount_paid: amountPaid, payment_state: paymentState, gig_state: gigState })
+    .update({
+      amount_paid: amountPaid,
+      balance_amount: balanceAmount,
+      payment_state: paymentState,
+      gig_state: gigState,
+      deposit_payment_status: depositRow?.payment_status ?? "PENDING",
+      deposit_payment_method: depositRow?.payment_method ?? null,
+      deposit_paid_amount: depositPaidAmount,
+      deposit_paid_at: depositPaidRows[0]?.paid_at ?? null,
+    })
     .eq("id", bookingId)
     .select()
     .maybeSingle();
 
   return updated;
+
 }
 
 /**
@@ -252,6 +279,7 @@ export async function applyEvent(supabase: SupabaseClient, event: NormalisedEven
           transaction_hash: event.transactionHash ?? payment.transaction_hash,
         })
         .eq("id", payment.id);
+      await recomputeBookingState(supabase, payment.booking_id);
       break;
     }
     case "payment_succeeded": {
