@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       const { data: booking } = await supabase
         .from("booking_requests")
         .select(
-          "id, client_name, client_email, event_date, event_type, message, status, booking_currency, performance_fee, deposit_type, deposit_value, deposit_amount, balance_amount, amount_paid, payment_deadline, terms, payment_state, gig_state, dj_id",
+          "id, client_name, client_email, event_date, event_type, message, status, booking_currency, performance_fee, deposit_type, deposit_value, deposit_amount, balance_amount, amount_paid, payment_deadline, terms, payment_state, gig_state, dj_id, deposit_payment_status, deposit_paid_amount, deposit_paid_at, deposit_payment_method",
         )
         .eq("access_token", token)
         .maybeSingle();
