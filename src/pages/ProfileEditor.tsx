@@ -27,6 +27,24 @@ const PRESET_SOCIAL_LABELS = PRESET_SOCIALS.map((s) => s.label);
 const getPreset = (links: LinkItem[], label: string) =>
   links.find((l) => l.label === label)?.url || "";
 
+const spotifyUrlToArtistId = (url: string) => {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes("spotify.com")) return url;
+    const match = u.pathname.match(/^\/artist\/([^/]+)/);
+    return match ? match[1] : url;
+  } catch {
+    return url;
+  }
+};
+
+const spotifyArtistIdToUrl = (id: string) => {
+  if (!id) return "";
+  if (id.startsWith("http")) return id;
+  return `https://open.spotify.com/artist/${id}`;
+};
+
 const setPreset = (
   links: LinkItem[],
   setter: (v: LinkItem[]) => void,
@@ -61,6 +79,7 @@ export default function ProfileEditor() {
   const [pressKitUrl, setPressKitUrl] = useState("");
   const [soundcloudUrl, setSoundcloudUrl] = useState("");
   const [musicLinks, setMusicLinks] = useState<{ label: string; url: string }[]>([]);
+  const [spotifyArtistId, setSpotifyArtistId] = useState("");
   const [socialLinks, setSocialLinks] = useState<{ label: string; url: string }[]>([]);
   const [pastEvents, setPastEvents] = useState<{ name: string; date: string }[]>([]);
   const [saving, setSaving] = useState(false);
@@ -76,7 +95,9 @@ export default function ProfileEditor() {
       setSlug(profile.slug || "");
       setPressKitUrl((profile as any).press_kit_url || "");
       setSoundcloudUrl((profile as any).soundcloud_url || "");
-      setMusicLinks(Array.isArray(profile.music_links) ? profile.music_links as any[] : []);
+      const loadedMusicLinks = Array.isArray(profile.music_links) ? profile.music_links as any[] : [];
+      setMusicLinks(loadedMusicLinks);
+      setSpotifyArtistId(spotifyUrlToArtistId(getPreset(loadedMusicLinks, "Spotify")));
       setSocialLinks(Array.isArray(profile.social_links) ? profile.social_links as any[] : []);
       setPastEvents(Array.isArray(profile.past_events) ? profile.past_events as any[] : []);
     }
@@ -86,6 +107,10 @@ export default function ProfileEditor() {
     if (!profile) return;
     setSaving(true);
     try {
+      const nonSpotifyMusic = musicLinks.filter((l) => l.label !== "Spotify");
+      const finalMusicLinks = spotifyArtistId
+        ? [...nonSpotifyMusic, { label: "Spotify", url: spotifyArtistIdToUrl(spotifyArtistId) }]
+        : nonSpotifyMusic;
       await updateProfile(profile.id, {
         name,
         bio,
@@ -96,7 +121,7 @@ export default function ProfileEditor() {
         slug,
         press_kit_url: pressKitUrl,
         soundcloud_url: soundcloudUrl,
-        music_links: musicLinks,
+        music_links: finalMusicLinks,
         social_links: socialLinks,
         past_events: pastEvents,
       });
@@ -276,14 +301,14 @@ export default function ProfileEditor() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Spotify</Label>
+              <Label>Spotify Artist ID</Label>
               <Input
-                value={getPreset(musicLinks, "Spotify")}
-                onChange={(e) => setPreset(musicLinks, setMusicLinks, "Spotify", e.target.value)}
-                placeholder="https://open.spotify.com/artist/..."
+                value={spotifyArtistId}
+                onChange={(e) => setSpotifyArtistId(e.target.value)}
+                placeholder="your-artist-id"
                 className="bg-background"
               />
-              <p className="text-xs text-muted-foreground">Connect your Spotify artist or playlist page.</p>
+              <p className="text-xs text-muted-foreground">Paste your Spotify artist username or ID — the link will be built as https://open.spotify.com/artist/&lt;id&gt;.</p>
             </div>
             {musicLinks.map((link, i) =>
               PRESET_MUSIC.includes(link.label) ? null : (
