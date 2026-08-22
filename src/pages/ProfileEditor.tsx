@@ -135,6 +135,10 @@ export default function ProfileEditor() {
         music_links: finalMusicLinks,
         social_links: socialLinks,
         past_events: pastEvents,
+        accepts_deposit: acceptsDeposit,
+        deposit_type: depositType,
+        deposit_percent: Number(depositPercent) || 0,
+        deposit_amount: depositAmount === "" ? null : Number(depositAmount),
       });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profile saved!");
