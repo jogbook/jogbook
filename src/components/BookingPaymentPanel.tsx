@@ -211,8 +211,18 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
         </p>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-sm">
             <Figure label="Total" value={formatMoney(performanceFee, booking.booking_currency)} />
+            <Figure
+              label={
+                booking.deposit_type === "PERCENTAGE"
+                  ? `Deposit (${Number(booking.deposit_value ?? 0)}%)`
+                  : booking.deposit_type === "FULL"
+                    ? "Deposit (full)"
+                    : "Deposit"
+              }
+              value={formatMoney(deposit, booking.booking_currency)}
+            />
             <Figure
               label="Deposit paid"
               value={formatMoney(Math.min(paid, deposit || paid), booking.booking_currency)}
