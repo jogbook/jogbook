@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { AlertTriangle, BadgeCheck, Banknote, Landmark, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Banknote, Landmark, Loader2, RefreshCw, ShieldCheck, Wallet } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { getProfile } from "@/lib/supabase-helpers";
 import {
   connectPayoutAccount,
@@ -16,9 +18,16 @@ import {
   getPayouts,
   PAYOUT_ACCOUNT_COPY,
   PAYOUT_STATUS_STYLES,
+  PAYOUT_METHOD_LABELS,
+  PAYOUT_NETWORKS,
   releasePayout,
+  saveCryptoPayoutMethod,
   summarisePayouts,
+  switchToCardPayouts,
   syncPayoutAccount,
+  validateWalletAddress,
+  type CryptoPayoutMethod,
+  type PayoutMethod,
   type PayoutAccountStatus,
   type PayoutStatus,
 } from "@/lib/payments";
