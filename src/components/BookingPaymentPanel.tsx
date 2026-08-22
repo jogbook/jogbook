@@ -31,19 +31,34 @@ import {
 interface Props {
   booking: any;
   settings: any;
+  djProfile?: any;
 }
 
-export function BookingPaymentPanel({ booking, settings }: Props) {
+export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  // DJ profile deposit preference seeds the terms until the booking has its own.
+  const profileAcceptsDeposit = djProfile?.accepts_deposit ?? true;
+  const profileDepositType: DepositType = !profileAcceptsDeposit
+    ? "FULL"
+    : djProfile?.deposit_type === "FIXED"
+      ? "FIXED"
+      : "PERCENTAGE";
+  const profileDepositValue =
+    profileDepositType === "FIXED"
+      ? Number(djProfile?.deposit_amount ?? 0)
+      : Number(djProfile?.deposit_percent ?? settings?.default_deposit_percent ?? 30);
+
   const currencies: string[] = settings?.supported_currencies ?? ["USD"];
   const [fee, setFee] = useState(String(booking.performance_fee ?? ""));
   const [currency, setCurrency] = useState(booking.booking_currency ?? settings?.default_currency ?? "USD");
-  const [depositType, setDepositType] = useState<DepositType>(booking.deposit_type ?? "PERCENTAGE");
+  const [depositType, setDepositType] = useState<DepositType>(
+    booking.performance_fee ? (booking.deposit_type ?? "PERCENTAGE") : profileDepositType,
+  );
   const [depositValue, setDepositValue] = useState(
-    String(booking.deposit_value ?? settings?.default_deposit_percent ?? 30),
+    String(booking.performance_fee ? (booking.deposit_value ?? profileDepositValue) : profileDepositValue),
   );
   const [deadline, setDeadline] = useState(
     booking.payment_deadline ? booking.payment_deadline.slice(0, 10) : "",
