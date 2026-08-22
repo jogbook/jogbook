@@ -279,6 +279,7 @@ export async function applyEvent(supabase: SupabaseClient, event: NormalisedEven
           transaction_hash: event.transactionHash ?? payment.transaction_hash,
         })
         .eq("id", payment.id);
+      await recomputeBookingState(supabase, payment.booking_id);
       break;
     }
     case "payment_succeeded": {

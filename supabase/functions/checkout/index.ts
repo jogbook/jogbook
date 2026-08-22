@@ -6,6 +6,7 @@
 // No payment is ever marked PAID here. Only the verified webhook does that.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { getSettings, json, serviceClient } from "../_shared/db.ts";
+import { recomputeBookingState } from "../_shared/ledger.ts";
 import { commissionSplit, round2 } from "../_shared/money.ts";
 import { quote } from "../_shared/fx.ts";
 import { availableMethods, providerForMethod } from "../_shared/providers/index.ts";
