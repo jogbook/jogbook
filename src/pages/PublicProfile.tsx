@@ -253,7 +253,9 @@ export default function PublicProfile() {
 
         <GenreSection genres={profile.genres || []} />
         <PressKitSection pastEvents={pastEvents} pressKitUrl={pressKitUrl} />
+        <SpotifySection spotifyUrl={spotifyUrl} />
         <SoundCloudSection soundcloudLink={soundcloudLink} />
+
         <LinksSection title="Music" links={otherMusicLinks} />
         <LinksSection title="Social links" links={socialLinks} />
 
