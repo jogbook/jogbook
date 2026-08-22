@@ -79,6 +79,7 @@ export default function ProfileEditor() {
   const [pressKitUrl, setPressKitUrl] = useState("");
   const [soundcloudUrl, setSoundcloudUrl] = useState("");
   const [musicLinks, setMusicLinks] = useState<{ label: string; url: string }[]>([]);
+  const [spotifyArtistId, setSpotifyArtistId] = useState("");
   const [socialLinks, setSocialLinks] = useState<{ label: string; url: string }[]>([]);
   const [pastEvents, setPastEvents] = useState<{ name: string; date: string }[]>([]);
   const [saving, setSaving] = useState(false);
