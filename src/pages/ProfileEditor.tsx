@@ -308,7 +308,7 @@ export default function ProfileEditor() {
                 placeholder="your-artist-id"
                 className="bg-background"
               />
-              <p className="text-xs text-muted-foreground">Paste your Spotify artist username or ID — the link will be built as https://open.spotify.com/artist/{spotifyArtistId}.</p>
+              <p className="text-xs text-muted-foreground">Paste your Spotify artist username or ID — the link will be built as https://open.spotify.com/artist/&lt;id&gt;.</p>
             </div>
             {musicLinks.map((link, i) =>
               PRESET_MUSIC.includes(link.label) ? null : (
