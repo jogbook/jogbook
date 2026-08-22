@@ -31,19 +31,34 @@ import {
 interface Props {
   booking: any;
   settings: any;
+  djProfile?: any;
 }
 
-export function BookingPaymentPanel({ booking, settings }: Props) {
+export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  // DJ profile deposit preference seeds the terms until the booking has its own.
+  const profileAcceptsDeposit = djProfile?.accepts_deposit ?? true;
+  const profileDepositType: DepositType = !profileAcceptsDeposit
+    ? "FULL"
+    : djProfile?.deposit_type === "FIXED"
+      ? "FIXED"
+      : "PERCENTAGE";
+  const profileDepositValue =
+    profileDepositType === "FIXED"
+      ? Number(djProfile?.deposit_amount ?? 0)
+      : Number(djProfile?.deposit_percent ?? settings?.default_deposit_percent ?? 30);
+
   const currencies: string[] = settings?.supported_currencies ?? ["USD"];
   const [fee, setFee] = useState(String(booking.performance_fee ?? ""));
   const [currency, setCurrency] = useState(booking.booking_currency ?? settings?.default_currency ?? "USD");
-  const [depositType, setDepositType] = useState<DepositType>(booking.deposit_type ?? "PERCENTAGE");
+  const [depositType, setDepositType] = useState<DepositType>(
+    booking.performance_fee ? (booking.deposit_type ?? "PERCENTAGE") : profileDepositType,
+  );
   const [depositValue, setDepositValue] = useState(
-    String(booking.deposit_value ?? settings?.default_deposit_percent ?? 30),
+    String(booking.performance_fee ? (booking.deposit_value ?? profileDepositValue) : profileDepositValue),
   );
   const [deadline, setDeadline] = useState(
     booking.payment_deadline ? booking.payment_deadline.slice(0, 10) : "",
@@ -159,6 +174,17 @@ export function BookingPaymentPanel({ booking, settings }: Props) {
                 )}
               </div>
 
+              <p className="text-xs text-muted-foreground">
+                {profileAcceptsDeposit
+                  ? `Your profile default: ${
+                      profileDepositType === "FIXED"
+                        ? formatMoney(profileDepositValue, currency)
+                        : `${profileDepositValue}%`
+                    } deposit.`
+                  : "Your profile has deposits switched off, so full payment upfront is pre-selected."}
+              </p>
+
+
               <div className="space-y-1.5">
                 <Label htmlFor="deadline">Payment deadline</Label>
                 <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
@@ -185,8 +211,18 @@ export function BookingPaymentPanel({ booking, settings }: Props) {
         </p>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-sm">
             <Figure label="Total" value={formatMoney(performanceFee, booking.booking_currency)} />
+            <Figure
+              label={
+                booking.deposit_type === "PERCENTAGE"
+                  ? `Deposit (${Number(booking.deposit_value ?? 0)}%)`
+                  : booking.deposit_type === "FULL"
+                    ? "Deposit (full)"
+                    : "Deposit"
+              }
+              value={formatMoney(deposit, booking.booking_currency)}
+            />
             <Figure
               label="Deposit paid"
               value={formatMoney(Math.min(paid, deposit || paid), booking.booking_currency)}

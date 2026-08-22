@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUpload } from "@/components/ImageUpload";
 import { PressKitUpload } from "@/components/PressKitUpload";
 import { toast } from "sonner";
@@ -82,6 +84,10 @@ export default function ProfileEditor() {
   const [spotifyArtistId, setSpotifyArtistId] = useState("");
   const [socialLinks, setSocialLinks] = useState<{ label: string; url: string }[]>([]);
   const [pastEvents, setPastEvents] = useState<{ name: string; date: string }[]>([]);
+  const [acceptsDeposit, setAcceptsDeposit] = useState(true);
+  const [depositType, setDepositType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
+  const [depositPercent, setDepositPercent] = useState("30");
+  const [depositAmount, setDepositAmount] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -100,6 +106,11 @@ export default function ProfileEditor() {
       setSpotifyArtistId(spotifyUrlToArtistId(getPreset(loadedMusicLinks, "Spotify")));
       setSocialLinks(Array.isArray(profile.social_links) ? profile.social_links as any[] : []);
       setPastEvents(Array.isArray(profile.past_events) ? profile.past_events as any[] : []);
+      const p = profile as any;
+      setAcceptsDeposit(p.accepts_deposit ?? true);
+      setDepositType(p.deposit_type === "FIXED" ? "FIXED" : "PERCENTAGE");
+      setDepositPercent(String(p.deposit_percent ?? 30));
+      setDepositAmount(p.deposit_amount != null ? String(p.deposit_amount) : "");
     }
   }, [profile]);
 
@@ -124,6 +135,10 @@ export default function ProfileEditor() {
         music_links: finalMusicLinks,
         social_links: socialLinks,
         past_events: pastEvents,
+        accepts_deposit: acceptsDeposit,
+        deposit_type: depositType,
+        deposit_percent: Number(depositPercent) || 0,
+        deposit_amount: depositAmount === "" ? null : Number(depositAmount),
       });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast.success("Profile saved!");
@@ -293,6 +308,66 @@ export default function ProfileEditor() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Deposits</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-1">
+                <Label>Accept deposits</Label>
+                <p className="text-xs text-muted-foreground">
+                  Shown on your public profile and pre-filled on every booking's payment terms.
+                </p>
+              </div>
+              <Switch checked={acceptsDeposit} onCheckedChange={setAcceptsDeposit} />
+            </div>
+
+            {acceptsDeposit && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Deposit type</Label>
+                  <Select value={depositType} onValueChange={(v) => setDepositType(v as "PERCENTAGE" | "FIXED")}>
+                    <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PERCENTAGE">Percentage of fee</SelectItem>
+                      <SelectItem value="FIXED">Fixed price</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {depositType === "PERCENTAGE" ? (
+                  <div className="space-y-2">
+                    <Label>Deposit %</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={depositPercent}
+                      onChange={(e) => setDepositPercent(e.target.value)}
+                      placeholder="30"
+                      className="bg-background"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label>Deposit price</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      placeholder="250.00"
+                      className="bg-background"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">

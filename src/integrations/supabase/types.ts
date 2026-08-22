@@ -438,10 +438,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accepts_deposit: boolean
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
           created_at: string
+          deposit_amount: number | null
+          deposit_percent: number
+          deposit_type: Database["public"]["Enums"]["deposit_type"]
           genres: string[] | null
           id: string
           location: string | null
@@ -462,10 +466,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          accepts_deposit?: boolean
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
+          deposit_amount?: number | null
+          deposit_percent?: number
+          deposit_type?: Database["public"]["Enums"]["deposit_type"]
           genres?: string[] | null
           id?: string
           location?: string | null
@@ -486,10 +494,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          accepts_deposit?: boolean
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           created_at?: string
+          deposit_amount?: number | null
+          deposit_percent?: number
+          deposit_type?: Database["public"]["Enums"]["deposit_type"]
           genres?: string[] | null
           id?: string
           location?: string | null

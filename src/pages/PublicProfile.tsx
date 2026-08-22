@@ -72,6 +72,36 @@ function GenreSection({ genres }: { genres: string[] }) {
   );
 }
 
+function DepositSection({ profile }: { profile: any }) {
+  if (!profile.accepts_deposit) return null;
+  const isPercent = profile.deposit_type !== "FIXED";
+  const percent = Number(profile.deposit_percent ?? 0);
+  const amount = profile.deposit_amount != null ? Number(profile.deposit_amount) : null;
+  const headline = isPercent
+    ? `${percent}% deposit`
+    : amount != null
+      ? `${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} deposit`
+      : "Deposit required";
+
+  return (
+    <>
+      <section>
+        <h2 className="text-sm font-bold mb-3 text-foreground">Deposit</h2>
+        <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+          <p className="text-base font-bold text-primary">{headline}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isPercent
+              ? `A ${percent}% deposit of the performance fee secures the booking. The remaining balance is due per the payment terms.`
+              : "This deposit secures the booking. The remaining balance is due per the payment terms."}
+            {profile.rate && !profile.rate_on_request ? ` Typical fee: ${profile.rate}.` : ""}
+          </p>
+        </div>
+      </section>
+      <hr className="my-6 border-border" />
+    </>
+  );
+}
+
 function PressKitSection({ pastEvents, pressKitUrl }: { pastEvents: any[]; pressKitUrl?: string }) {
   if (pastEvents.length === 0 && !pressKitUrl) return null;
   return (
@@ -255,6 +285,7 @@ export default function PublicProfile() {
         <hr className="my-6 border-border" />
 
         <GenreSection genres={profile.genres || []} />
+        <DepositSection profile={profile} />
         <PressKitSection pastEvents={pastEvents} pressKitUrl={pressKitUrl} />
         <SpotifySection spotifyUrl={spotifyUrl} />
         <SoundCloudSection soundcloudLink={soundcloudLink} />

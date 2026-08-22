@@ -109,7 +109,7 @@ export default function Requests() {
                         <span className="flex items-center gap-1 text-muted-foreground"><Mail size={14} /> {r.client_email}</span>
                         {r.client_phone && <span className="flex items-center gap-1 text-muted-foreground"><Phone size={14} /> {r.client_phone}</span>}
                       </div>
-                      <BookingPaymentPanel booking={r} settings={settings} />
+                      <BookingPaymentPanel booking={r} settings={settings} djProfile={profile} />
                     </>
                   )}
                 </CardContent>
