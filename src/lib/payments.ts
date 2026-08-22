@@ -157,6 +157,21 @@ export function releasePayout(payoutId: string) {
   return invoke<{ payout: any }>("payouts", { action: "release", payout_id: payoutId });
 }
 
+export function saveCryptoPayoutMethod(input: {
+  method: CryptoPayoutMethod;
+  network: string;
+  wallet_address: string;
+}) {
+  return invoke<{ status: PayoutAccountStatus; account: any }>("payouts", {
+    action: "set_crypto_method",
+    ...input,
+  });
+}
+
+export function switchToCardPayouts() {
+  return invoke<{ status: PayoutAccountStatus; account: any }>("payouts", { action: "set_card_method" });
+}
+
 export async function getPayoutAccount() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
