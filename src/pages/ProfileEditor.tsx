@@ -106,6 +106,11 @@ export default function ProfileEditor() {
       setSpotifyArtistId(spotifyUrlToArtistId(getPreset(loadedMusicLinks, "Spotify")));
       setSocialLinks(Array.isArray(profile.social_links) ? profile.social_links as any[] : []);
       setPastEvents(Array.isArray(profile.past_events) ? profile.past_events as any[] : []);
+      const p = profile as any;
+      setAcceptsDeposit(p.accepts_deposit ?? true);
+      setDepositType(p.deposit_type === "FIXED" ? "FIXED" : "PERCENTAGE");
+      setDepositPercent(String(p.deposit_percent ?? 30));
+      setDepositAmount(p.deposit_amount != null ? String(p.deposit_amount) : "");
     }
   }, [profile]);
 
