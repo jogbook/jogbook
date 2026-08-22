@@ -84,6 +84,10 @@ export default function ProfileEditor() {
   const [spotifyArtistId, setSpotifyArtistId] = useState("");
   const [socialLinks, setSocialLinks] = useState<{ label: string; url: string }[]>([]);
   const [pastEvents, setPastEvents] = useState<{ name: string; date: string }[]>([]);
+  const [acceptsDeposit, setAcceptsDeposit] = useState(true);
+  const [depositType, setDepositType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
+  const [depositPercent, setDepositPercent] = useState("30");
+  const [depositAmount, setDepositAmount] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
