@@ -44,11 +44,21 @@ Deno.serve(async (req) => {
 
   if (claimError) {
     if (claimError.code === "23505") {
-      console.log(`[${event.provider}] duplicate event ${event.eventId} ignored`);
-      return json({ received: true, duplicate: true });
+      // Already seen. Only retry when a previous attempt failed mid-flight.
+      const { data: prior } = await supabase
+        .from("webhook_events")
+        .select("processing_status")
+        .eq("provider", event.provider)
+        .eq("event_id", event.eventId)
+        .maybeSingle();
+      if (prior?.processing_status !== "failed") {
+        console.log(`[${event.provider}] duplicate event ${event.eventId} ignored`);
+        return json({ received: true, duplicate: true });
+      }
+    } else {
+      console.error(`Failed to record webhook event: ${claimError.message}`);
+      return json({ error: "Could not record event" }, 500);
     }
-    console.error(`Failed to record webhook event: ${claimError.message}`);
-    return json({ error: "Could not record event" }, 500);
   }
 
   try {
