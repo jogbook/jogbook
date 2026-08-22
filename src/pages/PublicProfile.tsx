@@ -230,6 +230,9 @@ export default function PublicProfile() {
   const otherMusicLinks = musicLinks.filter(
     (l) => !l.url?.includes("soundcloud.com") && !l.url?.includes("spotify.com"),
   );
+  const filteredSocialLinks = socialLinks.filter(
+    (l) => !l.url?.includes("spotify.com") && !l.url?.includes("soundcloud.com"),
+  );
 
 
   return (
