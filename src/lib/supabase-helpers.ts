@@ -12,11 +12,12 @@ export async function getProfile() {
 }
 
 export async function getProfileBySlug(slug: string) {
+  // Slug lookup is case-insensitive so shared links work regardless of casing.
   const { data } = await supabase
     .from("profiles")
     .select("*")
-    .eq("slug", slug)
-    .single();
+    .ilike("slug", slug)
+    .maybeSingle();
   return data;
 }
 
