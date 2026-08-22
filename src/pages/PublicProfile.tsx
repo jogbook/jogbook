@@ -260,7 +260,7 @@ export default function PublicProfile() {
         <SoundCloudSection soundcloudLink={soundcloudLink} />
 
         <LinksSection title="Music" links={otherMusicLinks} />
-        <LinksSection title="Social links" links={socialLinks} />
+        <LinksSection title="Social links" links={filteredSocialLinks} />
 
         <div className="h-24" />
       </div>
