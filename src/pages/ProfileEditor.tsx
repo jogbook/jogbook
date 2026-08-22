@@ -27,6 +27,24 @@ const PRESET_SOCIAL_LABELS = PRESET_SOCIALS.map((s) => s.label);
 const getPreset = (links: LinkItem[], label: string) =>
   links.find((l) => l.label === label)?.url || "";
 
+const spotifyUrlToArtistId = (url: string) => {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes("spotify.com")) return url;
+    const match = u.pathname.match(/^\/artist\/([^/]+)/);
+    return match ? match[1] : url;
+  } catch {
+    return url;
+  }
+};
+
+const spotifyArtistIdToUrl = (id: string) => {
+  if (!id) return "";
+  if (id.startsWith("http")) return id;
+  return `https://open.spotify.com/artist/${id}`;
+};
+
 const setPreset = (
   links: LinkItem[],
   setter: (v: LinkItem[]) => void,
