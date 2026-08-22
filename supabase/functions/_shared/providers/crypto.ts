@@ -104,7 +104,8 @@ export const cryptoPaymentProvider: PaymentProvider = {
 
   async createCheckout(req: CheckoutRequest): Promise<CheckoutResult> {
     const asset = req.method; // USDC | USDT | BTC
-    const settlementCurrency = (Deno.env.get("CRYPTO_QUOTE_CURRENCY") ?? "USD").toUpperCase();
+    // The provider quotes the crypto amount against the booking currency.
+    const settlementCurrency = req.currency.toUpperCase();
 
     const { data: charge } = await cryptoRequest<{ data: Record<string, any> }>(
       "/charges",
