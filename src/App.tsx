@@ -51,6 +51,26 @@ const App = () => (
             <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
             <Route path="/pay/:token" element={<Checkout />} />
             <Route path="/dj/:slug" element={<PublicProfile />} />
+
+            {/* Aliases: common URL spellings resolve to the existing pages instead of 404 */}
+            <Route path="/login" element={<Navigate to="/auth" replace />} />
+            <Route path="/sign-in" element={<Navigate to="/auth" replace />} />
+            <Route path="/register" element={<Navigate to="/signup" replace />} />
+            <Route path="/sign-up" element={<Navigate to="/signup" replace />} />
+            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dj-dashboard" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/client-dashboard" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/booker-dashboard" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/bookings" element={<Navigate to="/requests" replace />} />
+            <Route path="/booking-requests" element={<Navigate to="/requests" replace />} />
+            <Route path="/payments" element={<Navigate to="/earnings" replace />} />
+            <Route path="/settings" element={<Navigate to="/profile" replace />} />
+            <Route path="/account" element={<Navigate to="/profile" replace />} />
+            <Route path="/my-profile" element={<Navigate to="/profile" replace />} />
+            <Route path="/checkout/:token" element={<Checkout />} />
+            <Route path="/djs/:slug" element={<PublicProfile />} />
+            <Route path="/profile/:slug" element={<PublicProfile />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
