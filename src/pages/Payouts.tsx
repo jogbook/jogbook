@@ -50,6 +50,9 @@ export default function Payouts() {
   const queryClient = useQueryClient();
   const [country, setCountry] = useState("ZA");
   const [busy, setBusy] = useState(false);
+  const [method, setMethod] = useState<PayoutMethod | null>(null);
+  const [network, setNetwork] = useState<string | null>(null);
+  const [wallet, setWallet] = useState<string | null>(null);
 
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: getProfile });
   const { data: account } = useQuery({ queryKey: ["payout-account"], queryFn: getPayoutAccount });
@@ -58,6 +61,13 @@ export default function Payouts() {
     queryFn: () => getPayouts(profile!.id),
     enabled: !!profile?.id,
   });
+
+  const savedMethod = (account?.payout_method ?? "CARD") as PayoutMethod;
+  const activeMethod = method ?? savedMethod;
+  const isCrypto = activeMethod !== "CARD";
+  const networks = isCrypto ? PAYOUT_NETWORKS[activeMethod as CryptoPayoutMethod] : [];
+  const activeNetwork = network ?? (savedMethod === activeMethod ? account?.wallet_network ?? null : null) ?? networks[0] ?? "";
+  const activeWallet = wallet ?? (savedMethod === activeMethod ? account?.wallet_address ?? "" : "");
 
   const status = (account?.status ?? "NOT_CONNECTED") as PayoutAccountStatus;
   const copy = PAYOUT_ACCOUNT_COPY[status];
@@ -73,6 +83,46 @@ export default function Payouts() {
     } finally {
       setBusy(false);
       queryClient.invalidateQueries({ queryKey: ["payout-account"] });
+    }
+  };
+
+  const handleSelectMethod = (next: PayoutMethod) => {
+    setMethod(next);
+    setNetwork(null);
+    setWallet(null);
+  };
+
+  const handleSaveWallet = async () => {
+    const error = validateWalletAddress(activeNetwork, activeWallet);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveCryptoPayoutMethod({
+        method: activeMethod as CryptoPayoutMethod,
+        network: activeNetwork,
+        wallet_address: activeWallet.trim(),
+      });
+      queryClient.invalidateQueries({ queryKey: ["payout-account"] });
+      toast.success(`${activeMethod} payouts saved`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save wallet");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleUseCard = async () => {
+    setBusy(true);
+    try {
+      await switchToCardPayouts();
+      queryClient.invalidateQueries({ queryKey: ["payout-account"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not switch payout method");
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -110,6 +160,90 @@ export default function Payouts() {
           <p className="text-muted-foreground mt-1">Get paid for your bookings</p>
         </div>
 
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <div>
+              <p className="font-semibold">How you get paid</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose a card / bank transfer payout, or receive your earnings in crypto.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {(Object.keys(PAYOUT_METHOD_LABELS) as PayoutMethod[]).map((m) => {
+                const selected = activeMethod === m;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => handleSelectMethod(m)}
+                    className={`rounded-xl border p-3 text-left transition-colors ${
+                      selected
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/40 hover:bg-muted/60"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {m === "CARD" ? <Banknote size={15} className={selected ? "text-primary" : "text-muted-foreground"} /> : <Wallet size={15} className={selected ? "text-primary" : "text-muted-foreground"} />}
+                      <span className="text-sm font-semibold">{m === "CARD" ? "Card" : m}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{PAYOUT_METHOD_LABELS[m]}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            {isCrypto && (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Network</Label>
+                    <Select value={activeNetwork} onValueChange={setNetwork}>
+                      <SelectTrigger><SelectValue placeholder="Network" /></SelectTrigger>
+                      <SelectContent>
+                        {networks.map((n) => (
+                          <SelectItem key={n} value={n} className="capitalize">{n}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Wallet address</Label>
+                    <Input
+                      value={activeWallet}
+                      onChange={(e) => setWallet(e.target.value)}
+                      placeholder={activeNetwork === "solana" ? "Solana wallet address" : "0x…"}
+                      spellCheck={false}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button onClick={handleSaveWallet} disabled={busy} className="gap-2">
+                    {busy ? <Loader2 size={15} className="animate-spin" /> : <Wallet size={15} />}
+                    Save {activeMethod} payout wallet
+                  </Button>
+                  {savedMethod === activeMethod && account?.wallet_address && (
+                    <Badge variant="outline" className="bg-primary/15 text-primary border-primary/25">
+                      <BadgeCheck size={13} className="mr-1" /> Active payout method
+                    </Badge>
+                  )}
+                </div>
+                <p className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                  Double-check the address and network — crypto transfers cannot be reversed.
+                  Payouts are converted from your booking currency at the rate on release.
+                </p>
+              </div>
+            )}
+
+            {!isCrypto && savedMethod !== "CARD" && (
+              <Button variant="outline" onClick={handleUseCard} disabled={busy} className="gap-2">
+                <Banknote size={15} /> Switch to card / bank payouts
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
+        {!isCrypto && (
         <Card className="grain-overlay">
           <CardContent className="p-6 space-y-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -186,6 +320,7 @@ export default function Payouts() {
             </p>
           </CardContent>
         </Card>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Stat label="Available" value={formatMoney(totals.available, totals.currency)} />
