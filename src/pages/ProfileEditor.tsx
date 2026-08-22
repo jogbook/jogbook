@@ -310,6 +310,66 @@ export default function ProfileEditor() {
         </Card>
 
         <Card>
+          <CardHeader><CardTitle>Deposits</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-1">
+                <Label>Accept deposits</Label>
+                <p className="text-xs text-muted-foreground">
+                  Shown on your public profile and pre-filled on every booking's payment terms.
+                </p>
+              </div>
+              <Switch checked={acceptsDeposit} onCheckedChange={setAcceptsDeposit} />
+            </div>
+
+            {acceptsDeposit && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Deposit type</Label>
+                  <Select value={depositType} onValueChange={(v) => setDepositType(v as "PERCENTAGE" | "FIXED")}>
+                    <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PERCENTAGE">Percentage of fee</SelectItem>
+                      <SelectItem value="FIXED">Fixed price</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {depositType === "PERCENTAGE" ? (
+                  <div className="space-y-2">
+                    <Label>Deposit %</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={depositPercent}
+                      onChange={(e) => setDepositPercent(e.target.value)}
+                      placeholder="30"
+                      className="bg-background"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label>Deposit price</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      placeholder="250.00"
+                      className="bg-background"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+
+
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Music Links</CardTitle>
             <Button size="sm" variant="outline" onClick={() => setMusicLinks([...musicLinks, { label: "", url: "" }])}><Plus size={14} /></Button>
