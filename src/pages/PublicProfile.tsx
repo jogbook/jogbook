@@ -230,6 +230,9 @@ export default function PublicProfile() {
   const otherMusicLinks = musicLinks.filter(
     (l) => !l.url?.includes("soundcloud.com") && !l.url?.includes("spotify.com"),
   );
+  const filteredSocialLinks = socialLinks.filter(
+    (l) => !l.url?.includes("spotify.com") && !l.url?.includes("soundcloud.com"),
+  );
 
 
   return (
@@ -257,7 +260,7 @@ export default function PublicProfile() {
         <SoundCloudSection soundcloudLink={soundcloudLink} />
 
         <LinksSection title="Music" links={otherMusicLinks} />
-        <LinksSection title="Social links" links={socialLinks} />
+        <LinksSection title="Social links" links={filteredSocialLinks} />
 
         <div className="h-24" />
       </div>
