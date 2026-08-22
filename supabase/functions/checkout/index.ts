@@ -11,7 +11,7 @@ import { quote } from "../_shared/fx.ts";
 import { availableMethods, providerForMethod } from "../_shared/providers/index.ts";
 import { ProviderNotConfiguredError, ProviderRequestError, type PaymentMethod, type PaymentType } from "../_shared/types.ts";
 
-const METHODS: PaymentMethod[] = ["CARD", "PAYPAL", "USDC", "USDT", "BTC"];
+const METHODS: PaymentMethod[] = ["CARD", "PAYPAL", "USDC", "USDT", "SOL", "ETH", "BTC"];
 const TYPES: PaymentType[] = ["DEPOSIT", "BALANCE", "FULL"];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
