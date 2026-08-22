@@ -258,12 +258,16 @@ export type Database = {
           id: string
           last_synced_at: string | null
           payout_currency: string | null
+          payout_method: Database["public"]["Enums"]["payout_method"]
           payouts_enabled: boolean
           provider: string
           requirements: Json
           status: Database["public"]["Enums"]["payout_account_status"]
           updated_at: string
           user_id: string
+          wallet_address: string | null
+          wallet_asset: string | null
+          wallet_network: string | null
         }
         Insert: {
           charges_enabled?: boolean
@@ -275,12 +279,16 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           payout_currency?: string | null
+          payout_method?: Database["public"]["Enums"]["payout_method"]
           payouts_enabled?: boolean
           provider?: string
           requirements?: Json
           status?: Database["public"]["Enums"]["payout_account_status"]
           updated_at?: string
           user_id: string
+          wallet_address?: string | null
+          wallet_asset?: string | null
+          wallet_network?: string | null
         }
         Update: {
           charges_enabled?: boolean
@@ -292,12 +300,16 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           payout_currency?: string | null
+          payout_method?: Database["public"]["Enums"]["payout_method"]
           payouts_enabled?: boolean
           provider?: string
           requirements?: Json
           status?: Database["public"]["Enums"]["payout_account_status"]
           updated_at?: string
           user_id?: string
+          wallet_address?: string | null
+          wallet_asset?: string | null
+          wallet_network?: string | null
         }
         Relationships: [
           {
@@ -626,6 +638,7 @@ export type Database = {
         | "VERIFIED"
         | "PAYOUTS_ENABLED"
         | "RESTRICTED"
+      payout_method: "CARD" | "USDT" | "USDC" | "SOL" | "ETH"
       payout_status:
         | "NOT_ELIGIBLE"
         | "PENDING"
@@ -790,6 +803,7 @@ export const Constants = {
         "PAYOUTS_ENABLED",
         "RESTRICTED",
       ],
+      payout_method: ["CARD", "USDT", "USDC", "SOL", "ETH"],
       payout_status: [
         "NOT_ELIGIBLE",
         "PENDING",
