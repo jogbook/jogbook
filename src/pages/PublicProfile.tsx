@@ -285,6 +285,7 @@ export default function PublicProfile() {
         <hr className="my-6 border-border" />
 
         <GenreSection genres={profile.genres || []} />
+        <DepositSection profile={profile} />
         <PressKitSection pastEvents={pastEvents} pressKitUrl={pressKitUrl} />
         <SpotifySection spotifyUrl={spotifyUrl} />
         <SoundCloudSection soundcloudLink={soundcloudLink} />
