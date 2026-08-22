@@ -246,6 +246,16 @@ Deno.serve(async (req) => {
       })
       .eq("id", payment.id);
 
+    // Surface the pending deposit + selected method on the booking for the DJ.
+    if (paymentType !== "BALANCE" && booking.deposit_payment_status !== "PAID") {
+      await supabase
+        .from("booking_requests")
+        .update({ deposit_payment_status: "PENDING", deposit_payment_method: method })
+        .eq("id", booking.id);
+    }
+
+
+
     return reply({
       payment_id: payment.id,
       checkout_url: result.checkoutUrl ?? null,
