@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile, getBookingRequests, updateBookingStatus, deleteBookingRequest } from "@/lib/supabase-helpers";
+import { getPlatformSettings } from "@/lib/payments";
+import { BookingPaymentPanel } from "@/components/BookingPaymentPanel";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
