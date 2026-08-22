@@ -226,7 +226,11 @@ export default function PublicProfile() {
   const soundcloudLink =
     musicLinks.find((l) => l.url?.includes("soundcloud.com")) ||
     (soundcloudUrl ? { url: soundcloudUrl, label: "SoundCloud" } : null);
-  const otherMusicLinks = musicLinks.filter((l) => !l.url?.includes("soundcloud.com"));
+  const spotifyUrl = musicLinks.find((l) => l.url?.includes("spotify.com"))?.url || "";
+  const otherMusicLinks = musicLinks.filter(
+    (l) => !l.url?.includes("soundcloud.com") && !l.url?.includes("spotify.com"),
+  );
+
 
   return (
     <div className="min-h-screen bg-background text-foreground relative grain-overlay">
