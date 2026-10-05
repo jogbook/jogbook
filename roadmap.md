@@ -1,4 +1,8 @@
 # Roadmap
 
-- [ ] Evaluate Shyft (Solana) as payment/payout provider instead of Stripe — user prefers Shyft
-- [ ] Re-wire checkout + payouts to Shyft if feasible (or explain constraints)
+## Open
+- [ ] Payment provider decision pending user choice (own Stripe / built-in Stripe / Paddle / crypto-only) — blocked on user answer.
+- [ ] Shyft evaluation — on hold pending provider decision.
+
+## In progress
+- [ ] Technical audit of Earnings & Payouts (read-only): providers, Stripe Connect reality, ledger integrity, commissions, payout accounts, webhooks, refunds/disputes, crypto payouts, bank-payout launch path, SG/HK viability.
