@@ -1,66 +1,57 @@
+# JogBook Low-Cost Launch Plan
 
+Goal: launch now with booking requests and profiles. Payments stay switched off, and all the payment code stays in place so it can be turned on later. No design changes.
 
-# jogbook — DJ Booking Platform
+## 1. What's ready to launch (no changes needed)
+- DJ and booker signup/login, picking a role, and the dashboards for each
+- Public DJ profile at `/dj/:slug`: banner, photo, genres, Spotify/SoundCloud, social links, press kit, copy link
+- Booking request form, plus the DJ's list of requests (accept, decline, delete)
+- Profile editor, image uploads and press kit uploads
 
-A dark-themed DJ booking platform where DJs manage their profile and receive booking requests from potential clients.
+## 2. Payments master switch (setting only, no new feature)
+Add to the existing `platform_settings` row:
+- `payments_enabled` (boolean, default **false**)
+- `payouts_enabled` (boolean, default **false**)
+- `crypto_payouts_enabled` (boolean, default **false**)
+- `enabled_providers` (text[], default `{}`), allowed values: `STRIPE`, `PAYPAL`, `CRYPTO`
 
----
+A provider counts as available only if it is listed **and** its credentials exist on the server (for example `STRIPE_SECRET_KEY` or `PAYPAL_CLIENT_ID`/`SECRET`). Only admins (service role) can change this. Signed-in users can only read it.
 
-## 1. Authentication (Sign Up / Login)
-- Email + password authentication for DJs
-- Clean login and sign-up pages matching the dark theme with #00FF00 accents
-- After login, DJs land on their Dashboard
-- DJ profile is auto-created on sign-up
+## 3. Server-side enforcement (the real protection)
+- `checkout` function: return 403 "Payments not available" unless `payments_enabled` is on and the chosen method's provider is available.
+- `payouts` function: block withdraw, onboarding and set-method actions unless `payouts_enabled` is on. Crypto method actions are also blocked unless `crypto_payouts_enabled` is on.
+- `bookings` function: the payment-terms actions that start a charge get the same check. Status changes (accept, decline, delete) keep working.
+- `payments-webhook`: unchanged. It still verifies signatures and records events.
 
-## 2. DJ Dashboard (Private)
-- Overview of recent booking requests with status indicators (new, accepted, declined)
-- Quick stats: total requests, pending requests, upcoming gigs
-- Ability to accept or decline booking requests
-- Sidebar navigation with the jogbook branding and links to Dashboard, My Profile, Requests, and Subscribe
+## 4. Frontend: hide, don't redesign
+- `src/lib/payments.ts`: add `getPaymentAvailability()`, which reads the new flags.
+- `BookingPaymentPanel`, `Checkout`, `Payouts` and `Earnings`: when payments are off, show one small existing-style notice ("Payments through JogBook are coming soon — arrange payment directly with the DJ") in place of the pay/withdraw buttons.
+- `Payouts`: hide the crypto (USDT/USDC/SOL/ETH) options while `crypto_payouts_enabled` is off.
+- The booking request flow stays fully usable with no payment step.
 
-## 3. DJ Profile Editor (Private)
-- Edit profile info: name, bio, photo URL, genres, location
-- Add past events with name and date
-- Add music/mix links (SoundCloud, Mixcloud, Spotify, etc.)
-- Add social media links
-- Live preview link to share the public profile
+## 5. Commission preserved
+- `platform_settings.commission_rate` (5%) and the ledger math stay as they are. Nothing is removed. They only take effect once payments are enabled.
 
-## 4. Public DJ Profile Page
-- Accessible without login at `/dj/:slug`
-- Showcases: DJ name, photo, bio, genres, location
-- Past events section
-- Music samples/links section
-- Social media links
-- Embedded **Booking Request Form** at the bottom
+## 6. PayPal activation: what's needed (investigation only)
+- Secrets: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID`, `PAYPAL_ENV=live`
+- Register the `payments-webhook` URL in the PayPal dashboard for order and capture events
+- PayPal Payouts needs separate approval from PayPal (a business account; South Africa has restrictions on receiving payouts)
+- Then set `enabled_providers = {PAYPAL}`, `payments_enabled = true`, and later `payouts_enabled`
+- I'll confirm the exact adapter gaps and include them in the checklist
 
-## 5. Booking Request Form (Public)
-- Fields: name, email, phone, event date, event type (wedding, corporate, club, festival, private party, other), and message
-- Form validation with clear error states
-- Success confirmation after submission
-- Data saves to the database, linked to the DJ's profile
+## 7. Security review
+- Run the security scan and database linter
+- Check row-level security on `profiles`, `booking_requests`, `booker_profiles`, `user_roles`, `payments`, `payouts`, `payout_accounts` and `platform_settings`
+- Booking privacy: only the DJ and the booker on a request can see it. Anonymous visitors can submit a request but can't read any. Public profiles don't expose emails, phone numbers or payout data.
+- Storage buckets: public read only where it's intended (images, press kits). Writes limited to each owner's folder.
+- Fix only real security holes I find. Anything else goes on the checklist.
 
-## 6. Booking Requests Page (Private)
-- List view of all incoming booking requests
-- Filter by status (all, new, accepted, declined)
-- View request details and respond (accept/decline)
-- Contact info visible for accepted bookings
+## 8. Deliverable
+`PRODUCTION_READINESS.md` (in the project) listing:
+- what's ready, and blockers sorted by severity (security, auth email/SMTP and Site URL, domain, legal pages such as terms and privacy, payments off)
+- steps to activate PayPal and Stripe later
 
-## 7. Subscribe Page (Private)
-- Placeholder pricing/subscription page with tiered plan cards
-- Static content for now — no payment processing yet
-
-## Design System
-- **Background:** Black (#000) / near-black (#0a0a0a)
-- **Accent:** #00FF00 (neon green)
-- **Border radius:** 12px
-- **Font:** Clean sans-serif, bold headings with tight tracking
-- **Selection color:** Green text on black
-- **Fully responsive** with mobile hamburger menu
-
-## Backend (Lovable Cloud / Supabase)
-- **profiles** table: DJ profile data (name, bio, photo, genres, location, slug, social links, music links, past events)
-- **booking_requests** table: form submissions linked to DJ profiles
-- Row-Level Security so DJs only see their own data
-- Public read access for DJ profiles (for the public page)
-- Public insert access for booking requests (so anyone can submit)
-
+## Technical notes
+- One migration that adds the columns with safe defaults. Existing tables and data are untouched.
+- The edge function check goes in `_shared/db.ts` (`assertProviderAvailable`) so every function uses the same rule.
+- The edge functions are redeployed afterward. Types regenerate automatically.
