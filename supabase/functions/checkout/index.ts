@@ -5,7 +5,7 @@
 //
 // No payment is ever marked PAID here. Only the verified webhook does that.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { getSettings, json, serviceClient } from "../_shared/db.ts";
+import { getSettings, isProviderEnabled, json, serviceClient } from "../_shared/db.ts";
 import { recomputeBookingState } from "../_shared/ledger.ts";
 import { commissionSplit, round2 } from "../_shared/money.ts";
 import { quote } from "../_shared/fx.ts";
@@ -28,7 +28,11 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const settings = await getSettings(supabase);
     const enabled = settings.supported_payment_methods as PaymentMethod[];
-    const configured = availableMethods();
+    const configuredRaw = availableMethods();
+    // Only methods whose provider is switched on by the platform AND has credentials.
+    const configured = Object.fromEntries(
+      METHODS.map((m) => [m, !!configuredRaw[m] && isProviderEnabled(settings, providerForMethod(m).id)]),
+    ) as Record<PaymentMethod, boolean>;
 
     // ---------- Summary ----------
     if (req.method === "GET") {
@@ -62,6 +66,7 @@ Deno.serve(async (req) => {
         payments: payments ?? [],
         settings: {
           supported_currencies: settings.supported_currencies,
+          payments_enabled: !!settings.payments_enabled,
           methods: METHODS.filter((m) => enabled.includes(m)).map((m) => ({
             method: m,
             available: !!configured[m],
@@ -82,6 +87,9 @@ Deno.serve(async (req) => {
     if (!TYPES.includes(paymentType)) return reply({ error: "Invalid payment type" }, 400);
     if (!METHODS.includes(method)) return reply({ error: "Invalid payment method" }, 400);
     if (!enabled.includes(method)) return reply({ error: `${method} payments are not enabled` }, 400);
+    if (!configured[method]) {
+      return reply({ error: "Payments through JogBook are not available yet. Please arrange payment directly with the DJ." }, 403);
+    }
 
     const { data: existingBooking } = await supabase
       .from("booking_requests")

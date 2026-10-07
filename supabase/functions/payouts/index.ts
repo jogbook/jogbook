@@ -47,6 +47,15 @@ Deno.serve(async (req) => {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const action = String(body.action ?? "");
 
+    // Launch switch: block every payout action until payouts are activated.
+    const launch = await getSettings(supabase);
+    if (!launch.payouts_enabled) {
+      return reply({ error: "Payouts through JogBook are not available yet." }, 403);
+    }
+    if (action === "set_crypto_method" && !launch.crypto_payouts_enabled) {
+      return reply({ error: "Crypto payouts are not available yet." }, 403);
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, name, stage_name, location")
