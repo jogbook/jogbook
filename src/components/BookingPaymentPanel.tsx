@@ -59,6 +59,7 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const paymentsOn = !!settings?.payments_enabled;
 
   // DJ profile deposit preference seeds the terms until the booking has its own.
   const profileAcceptsDeposit = djProfile?.accepts_deposit ?? true;
@@ -292,7 +293,13 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
           <Separator />
 
 
+          {!paymentsOn && (
+            <p className="text-xs text-muted-foreground">
+              Payments through JogBook are coming soon — arrange payment directly with the client.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
+            {paymentsOn && (
             <Button
               size="sm"
               variant="outline"
@@ -304,6 +311,7 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
             >
               <Copy size={14} /> Copy payment link
             </Button>
+            )}
 
             {booking.gig_state !== "GIG_COMPLETED" && (
               <Button
@@ -317,7 +325,7 @@ export function BookingPaymentPanel({ booking, settings, djProfile }: Props) {
               </Button>
             )}
 
-            {outstanding > 0 && (
+            {paymentsOn && outstanding > 0 && (
               <Button
                 size="sm"
                 className="gap-1.5"

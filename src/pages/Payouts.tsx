@@ -15,6 +15,7 @@ import {
   connectPayoutAccount,
   formatMoney,
   getPayoutAccount,
+  getPaymentAvailability,
   getPayouts,
   PAYOUT_ACCOUNT_COPY,
   PAYOUT_STATUS_STYLES,
@@ -61,6 +62,10 @@ export default function Payouts() {
     queryFn: () => getPayouts(profile!.id),
     enabled: !!profile?.id,
   });
+
+  const { data: availability } = useQuery({ queryKey: ["payment-availability"], queryFn: getPaymentAvailability });
+  const payoutsOn = !!availability?.payoutsEnabled;
+  const cryptoOn = !!availability?.cryptoPayoutsEnabled;
 
   const savedMethod = (account?.payout_method ?? "CARD") as PayoutMethod;
   const activeMethod = method ?? savedMethod;
@@ -162,6 +167,13 @@ export default function Payouts() {
           <p className="text-muted-foreground mt-1">Get paid for your bookings</p>
         </div>
 
+        {!payoutsOn ? (
+          <Card>
+            <CardContent className="p-6 text-sm text-muted-foreground">
+              Payouts through JogBook are coming soon. For now, arrange payment directly with your clients.
+            </CardContent>
+          </Card>
+        ) : (<>
         <Card>
           <CardContent className="p-6 space-y-4">
             <div>
@@ -171,7 +183,7 @@ export default function Payouts() {
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-              {(Object.keys(PAYOUT_METHOD_LABELS) as PayoutMethod[]).map((m) => {
+              {(Object.keys(PAYOUT_METHOD_LABELS) as PayoutMethod[]).filter((m) => cryptoOn || m === "CARD").map((m) => {
                 const selected = activeMethod === m;
                 return (
                   <button
@@ -323,6 +335,7 @@ export default function Payouts() {
           </CardContent>
         </Card>
         )}
+        </>)}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Stat label="Available" value={formatMoney(totals.available, totals.currency)} />
@@ -330,7 +343,7 @@ export default function Payouts() {
           <Stat label="Paid out" value={formatMoney(totals.paidOut, totals.currency)} />
         </div>
 
-        <PayoutList title="Upcoming payouts" rows={upcoming} onRelease={handleRelease} />
+        <PayoutList title="Upcoming payouts" rows={upcoming} onRelease={payoutsOn ? handleRelease : undefined} />
         <PayoutList title="Completed payouts" rows={completed} />
       </div>
     </DashboardLayout>

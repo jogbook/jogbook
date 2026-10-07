@@ -429,11 +429,15 @@ export type Database = {
           balance_due_days: number
           commission_percent: number
           created_at: string
+          crypto_payouts_enabled: boolean
           default_currency: string
           default_deposit_percent: number
           default_deposit_type: Database["public"]["Enums"]["deposit_type"]
+          enabled_providers: string[]
           id: boolean
+          payments_enabled: boolean
           payout_timing: Database["public"]["Enums"]["payout_timing"]
+          payouts_enabled: boolean
           supported_currencies: string[]
           supported_payment_methods: string[]
           updated_at: string
@@ -442,11 +446,15 @@ export type Database = {
           balance_due_days?: number
           commission_percent?: number
           created_at?: string
+          crypto_payouts_enabled?: boolean
           default_currency?: string
           default_deposit_percent?: number
           default_deposit_type?: Database["public"]["Enums"]["deposit_type"]
+          enabled_providers?: string[]
           id?: boolean
+          payments_enabled?: boolean
           payout_timing?: Database["public"]["Enums"]["payout_timing"]
+          payouts_enabled?: boolean
           supported_currencies?: string[]
           supported_payment_methods?: string[]
           updated_at?: string
@@ -455,11 +463,15 @@ export type Database = {
           balance_due_days?: number
           commission_percent?: number
           created_at?: string
+          crypto_payouts_enabled?: boolean
           default_currency?: string
           default_deposit_percent?: number
           default_deposit_type?: Database["public"]["Enums"]["deposit_type"]
+          enabled_providers?: string[]
           id?: boolean
+          payments_enabled?: boolean
           payout_timing?: Database["public"]["Enums"]["payout_timing"]
+          payouts_enabled?: boolean
           supported_currencies?: string[]
           supported_payment_methods?: string[]
           updated_at?: string

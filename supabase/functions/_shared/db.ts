@@ -35,6 +35,10 @@ export interface PlatformSettings {
   supported_currencies: string[];
   default_currency: string;
   balance_due_days: number;
+  payments_enabled: boolean;
+  payouts_enabled: boolean;
+  crypto_payouts_enabled: boolean;
+  enabled_providers: string[];
 }
 
 export async function getSettings(supabase: SupabaseClient): Promise<PlatformSettings> {
@@ -57,4 +61,10 @@ export function json(body: unknown, status = 200, extraHeaders: Record<string, s
     status,
     headers: { "Content-Type": "application/json", ...extraHeaders },
   });
+}
+
+/** Launch switch: a provider is usable only if payments are on AND it is listed. */
+export function isProviderEnabled(settings: PlatformSettings, providerId: string): boolean {
+  return !!settings.payments_enabled &&
+    (settings.enabled_providers ?? []).map((p) => p.toUpperCase()).includes(providerId.toUpperCase());
 }
