@@ -177,6 +177,13 @@ export const paypalPaymentProvider: PaymentProvider = {
 
     switch (event.event_type) {
       case "CHECKOUT.ORDER.APPROVED":
+        // Buyer approved; capture the funds. PayPal then sends
+        // PAYMENT.CAPTURE.COMPLETED, which marks the payment paid.
+        try {
+          await paypalRequest(`/v2/checkout/orders/${r.id}/capture`, "POST", {}, `capture_${r.id}`);
+        } catch (e) {
+          if (!String(e).includes("ORDER_ALREADY_CAPTURED")) throw e;
+        }
         return { ...base, kind: "payment_processing", providerPaymentId: r.id, paymentId };
       case "PAYMENT.CAPTURE.COMPLETED":
         return {
