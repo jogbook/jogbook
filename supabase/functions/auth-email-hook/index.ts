@@ -15,7 +15,7 @@ const corsHeaders = {
 }
 
 // Configuration
-const SITE_NAME = "DJ Connect"
+const SITE_NAME = "JogBook"
 const SENDER_DOMAIN = "notify.jogbook.com"
 const ROOT_DOMAIN = "jogbook.com"
 const FROM_DOMAIN = "jogbook.com"
