@@ -39,6 +39,8 @@ export function BookingForm({ djId, djName }: { djId: string; djName: string }) 
     event_type: "",
     message: "",
   });
+  const [website, setWebsite] = useState(""); // honeypot — humans never fill this
+  const [openedAt] = useState(() => Date.now());
 
   const update = (field: string, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -57,6 +59,12 @@ export function BookingForm({ djId, djName }: { djId: string; djName: string }) 
       return;
     }
 
+    // Bots: filled honeypot or submitted in under 3 seconds. Pretend success.
+    if (website || Date.now() - openedAt < 3000) {
+      setSubmitted(true);
+      return;
+    }
+
     setSubmitting(true);
     try {
       await createBookingRequest({
@@ -69,8 +77,9 @@ export function BookingForm({ djId, djName }: { djId: string; djName: string }) 
         message: form.message.trim() || undefined,
       });
       setSubmitted(true);
-    } catch {
-      toast.error("Failed to submit. Please try again.");
+    } catch (err: any) {
+      const msg = String(err?.message ?? "");
+      toast.error(/too many|too long|valid|links/i.test(msg) ? msg : "Failed to submit. Please try again.");
     }
     setSubmitting(false);
   };
@@ -89,6 +98,16 @@ export function BookingForm({ djId, djName }: { djId: string; djName: string }) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        className="absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Your Name *</Label>

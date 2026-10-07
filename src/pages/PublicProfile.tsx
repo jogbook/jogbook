@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { LegalLinks } from "@/pages/Legal";
 import { useQuery } from "@tanstack/react-query";
 import { getProfileBySlug } from "@/lib/supabase-helpers";
 import { BookingForm } from "@/components/BookingForm";
@@ -298,7 +299,10 @@ export default function PublicProfile() {
 
       {/* Powered by jogbook */}
       <div className="fixed bottom-16 left-0 right-0 flex justify-center pointer-events-none z-40">
-        <img src={jogbookLogo} alt="jogbook" className="h-5 opacity-30" />
+        <div className="flex flex-col items-center gap-1 pointer-events-auto">
+          <img src={jogbookLogo} alt="jogbook" className="h-5 opacity-30" />
+          <LegalLinks className="opacity-60" />
+        </div>
       </div>
 
       {/* Sticky bottom bar */}

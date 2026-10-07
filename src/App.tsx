@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { Terms, Privacy } from "./pages/Legal";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -51,6 +52,8 @@ const App = () => (
             <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
             <Route path="/pay/:token" element={<Checkout />} />
             <Route path="/dj/:slug" element={<PublicProfile />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
 
             {/* Aliases: common URL spellings resolve to the existing pages instead of 404 */}
             <Route path="/login" element={<Navigate to="/auth" replace />} />
