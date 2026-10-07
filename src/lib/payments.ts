@@ -225,11 +225,7 @@ export async function getPayoutAccount() {
 
 /** Launch switches: payments/payouts stay off until providers are activated. */
 export async function getPaymentAvailability() {
-  const { data } = await supabase
-    .from("platform_settings")
-    .select("payments_enabled, payouts_enabled, crypto_payouts_enabled, enabled_providers")
-    .eq("id", true)
-    .maybeSingle();
+  const data = await getPlatformSettings();
   return {
     paymentsEnabled: !!data?.payments_enabled,
     payoutsEnabled: !!data?.payouts_enabled,
@@ -239,7 +235,7 @@ export async function getPaymentAvailability() {
 }
 
 export async function getPlatformSettings() {
-  const { data } = await supabase.from("platform_settings").select("*").eq("id", true).maybeSingle();
+  const { data } = await supabase.rpc("get_platform_settings").maybeSingle();
   return data;
 }
 
