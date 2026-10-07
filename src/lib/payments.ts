@@ -223,6 +223,21 @@ export async function getPayoutAccount() {
   return data;
 }
 
+/** Launch switches: payments/payouts stay off until providers are activated. */
+export async function getPaymentAvailability() {
+  const { data } = await supabase
+    .from("platform_settings")
+    .select("payments_enabled, payouts_enabled, crypto_payouts_enabled, enabled_providers")
+    .eq("id", true)
+    .maybeSingle();
+  return {
+    paymentsEnabled: !!data?.payments_enabled,
+    payoutsEnabled: !!data?.payouts_enabled,
+    cryptoPayoutsEnabled: !!data?.crypto_payouts_enabled,
+    enabledProviders: (data?.enabled_providers ?? []) as string[],
+  };
+}
+
 export async function getPlatformSettings() {
   const { data } = await supabase.from("platform_settings").select("*").eq("id", true).maybeSingle();
   return data;
@@ -285,6 +300,7 @@ export interface CheckoutSummary {
   dj: any;
   payments: any[];
   settings: {
+    payments_enabled?: boolean;
     supported_currencies: string[];
     methods: { method: PaymentMethod; available: boolean }[];
   };

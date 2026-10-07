@@ -189,6 +189,10 @@ export default function Checkout() {
               {formatMoney(fee, booking.booking_currency)} received. Nothing else to pay.
             </p>
           </section>
+        ) : data?.settings.payments_enabled === false ? (
+          <section className="rounded-xl border border-border bg-muted/40 p-6 text-center text-sm text-muted-foreground">
+            Payments through JogBook are coming soon — please arrange payment directly with the DJ.
+          </section>
         ) : notAccepted ? (
           <section className="rounded-xl border border-border bg-muted/40 p-6 text-center text-sm text-muted-foreground">
             Your DJ hasn't finalised the fee for this booking yet. You'll be able to pay here as soon
