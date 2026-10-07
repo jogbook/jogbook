@@ -19,16 +19,21 @@ All payment, ledger, payout and 5% commission code is preserved (`commission_per
 - Storage buckets public-read; writes scoped to owner folder
 - Webhook signatures verified (Stripe, PayPal)
 
-## Blockers / to do before launch
-| Severity | Item |
+## Launch report (7 Oct 2026)
+| Status | Item |
 |---|---|
-| High | Turn on leaked-password protection (auth setting) |
-| High | Configure custom email sender (SMTP) + Site URL / redirect URLs for jogbook.com, otherwise signup emails use default limits |
-| High | Terms of Service & Privacy Policy pages (collects client names, emails, phones) |
-| Medium | Bookers cannot see the requests they submitted in-app (no read policy on `client_user_id`) — acceptable for launch, they get the access-token link |
-| Medium | Anonymous booking inserts have no rate limit / captcha — spam risk |
-| Low | Security-definer helper functions are callable by API users (read-only, low risk) |
-| Low | Custom domain connection |
+| PASS | Leaked-password protection enabled |
+| PASS | Terms (/terms) & Privacy (/privacy) pages, linked in signup, login and public profile footer |
+| PASS | Booking spam protection: honeypot + time trap (client), server trigger validates input, blocks link spam, rate-limits (3/email/DJ/hour, 10/email/day, 30/DJ/hour), forces clean status/payment fields |
+| PASS | Bookers see their submitted requests + status (signed-in submissions; linked server-side, cannot be spoofed) |
+| PASS | Payments/payouts/crypto disabled by switch + server enforcement; architecture unchanged |
+| PASS | Anonymous users cannot read booking requests (verified) |
+| PASS | Fixed: avatar storage rule let any signed-in user change any file — now owner-folder only |
+| ACCEPTED | platform_settings readable by signed-in users (non-sensitive config) ; profiles publicly readable (by design) ; public buckets listable (public content) |
+| BLOCKER | Production email for jogbook.com — needs sender domain setup (Cloud → Emails) and DNS records at your registrar |
+| BLOCKER | jogbook.com as site URL — connect the custom domain to the published app first; auth redirect URLs then follow it |
+| NOTE | Legal pages are a starting template — have them reviewed (POPIA/GDPR) |
+| NOTE | Requests sent before today, or while signed out, are not linked to booker accounts |
 
 ## Activating PayPal later (minimum steps)
 1. PayPal Business account (check SA restrictions on receiving funds; payouts need PayPal Payouts approval)
