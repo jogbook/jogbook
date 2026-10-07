@@ -487,7 +487,7 @@ export default function Signup() {
             <div className="flex items-start gap-2 pt-1">
               <Checkbox id="terms" checked={acceptTerms} onCheckedChange={(c) => setAcceptTerms(!!c)} className="mt-0.5" />
               <Label htmlFor="terms" className="text-sm font-normal cursor-pointer leading-relaxed">
-                I agree to the terms and conditions and confirm I'll receive a verification email.
+                I agree to the <Link to="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link> and confirm I'll receive a verification email.
               </Label>
             </div>
             <div className="flex gap-2">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate, Link } from "react-router-dom";
+import { LegalLinks } from "@/pages/Legal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,6 +83,7 @@ export default function Auth() {
             {submitting ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
           </Button>
         </form>
+        <LegalLinks className="text-center" />
 
         <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
