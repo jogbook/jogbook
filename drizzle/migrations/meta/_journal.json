@@ -8,6 +8,13 @@
       "when": 1791344614434,
       "tag": "0000_payment_launch_flags",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791345078840,
+      "tag": "0001_booking_spam_protection_and_booker_access",
+      "breakpoints": true
     }
   ]
 }
