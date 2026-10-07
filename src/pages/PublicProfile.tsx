@@ -294,15 +294,15 @@ export default function PublicProfile() {
         <LinksSection title="Music" links={otherMusicLinks} />
         <LinksSection title="Social links" links={filteredSocialLinks} />
 
-        <div className="h-24" />
-      </div>
-
-      {/* Powered by jogbook */}
-      <div className="fixed bottom-16 left-0 right-0 flex justify-center pointer-events-none z-40">
-        <div className="flex flex-col items-center gap-1 pointer-events-auto">
-          <img src={jogbookLogo} alt="jogbook" className="h-5 opacity-30" />
-          <LegalLinks className="opacity-60" />
+        {/* Powered by jogbook */}
+        <div className="flex justify-center py-6">
+          <div className="flex flex-col items-center gap-1">
+            <img src={jogbookLogo} alt="jogbook" className="h-5 opacity-30" />
+            <LegalLinks className="opacity-60" />
+          </div>
         </div>
+
+        <div className="h-24" />
       </div>
 
       {/* Sticky bottom bar */}
