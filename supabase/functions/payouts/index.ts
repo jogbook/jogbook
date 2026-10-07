@@ -4,7 +4,7 @@
 // JogBook never sees bank details: onboarding happens entirely on the
 // provider's hosted pages. We store the connected-account id and status only.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { json, requireUser, serviceClient } from "../_shared/db.ts";
+import { getSettings, json, requireUser, serviceClient } from "../_shared/db.ts";
 import { activePayoutProvider } from "../_shared/providers/index.ts";
 import { releasePayout } from "../_shared/ledger.ts";
 import { ProviderNotConfiguredError, ProviderRequestError } from "../_shared/types.ts";
