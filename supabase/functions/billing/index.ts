@@ -9,6 +9,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { json, requireUser, serviceClient } from "../_shared/db.ts";
 import { paypalRequest } from "../_shared/providers/paypal.ts";
+import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
 
 const reply = (body: unknown, status = 200) =>
   json(body, status, corsHeaders as unknown as Record<string, string>);
@@ -127,6 +128,24 @@ Deno.serve(async (req) => {
             { onConflict: "order_id", ignoreDuplicates: true },
           );
           await audit(null, "payment_verified", "billing_order", orderId, { capture_id: capture.id });
+          // Emails must never break a verified payment.
+          try {
+            const { data: product } = await db.from("billing_products").select("name").eq("code", order.product_code).maybeSingle();
+            const data = {
+              productName: product?.name ?? order.product_code,
+              amount: Number(order.amount).toFixed(2),
+              currency: order.currency,
+              orderId,
+              paidAt: new Date().toUTCString().slice(5, 16),
+              customerEmail: user.email ?? "unknown",
+            };
+            if (user.email) {
+              await sendTemplateEmail("order-receipt", user.email, { templateData: data, idempotencyKey: `order-receipt-${orderId}` });
+            }
+            await sendTemplateEmail("admin-new-order", "chilstamusic@gmail.com", { templateData: data, idempotencyKey: `admin-new-order-${orderId}` });
+          } catch (e) {
+            console.error("order email failed", e);
+          }
         }
         return reply({ order: upd ?? order });
       }
