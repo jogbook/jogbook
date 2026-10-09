@@ -29,6 +29,13 @@
       "when": 1791355157103,
       "tag": "0003_platform_settings_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791508546766,
+      "tag": "0004_add_admin_role",
+      "breakpoints": true
     }
   ]
 }

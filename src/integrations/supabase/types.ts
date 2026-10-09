@@ -668,7 +668,7 @@ export type Database = {
       is_profile_owner: { Args: { profile_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "dj" | "booker"
+      app_role: "dj" | "booker" | "admin"
       booking_gig_state: "PENDING" | "CONFIRMED" | "GIG_COMPLETED" | "CANCELLED"
       booking_payment_state:
         | "UNPAID"
@@ -837,7 +837,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["dj", "booker"],
+      app_role: ["dj", "booker", "admin"],
       booking_gig_state: ["PENDING", "CONFIRMED", "GIG_COMPLETED", "CANCELLED"],
       booking_payment_state: [
         "UNPAID",
