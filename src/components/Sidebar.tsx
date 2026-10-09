@@ -1,4 +1,4 @@
-import { LayoutDashboard, User, Inbox, LogOut, ExternalLink, TrendingUp, Landmark } from "lucide-react";
+import { LayoutDashboard, User, Inbox, LogOut, ExternalLink, TrendingUp, Landmark, Receipt } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/lib/supabase-helpers";
@@ -12,6 +12,7 @@ const links = [
   { to: "/requests", label: "Requests", icon: Inbox },
   { to: "/earnings", label: "Earnings", icon: TrendingUp },
   { to: "/payouts", label: "Payouts", icon: Landmark },
+  { to: "/billing", label: "Billing", icon: Receipt },
 ];
 
 export function Sidebar() {

@@ -14,6 +14,9 @@ import Requests from "./pages/Requests";
 import Earnings from "./pages/Earnings";
 import Payouts from "./pages/Payouts";
 import Checkout from "./pages/Checkout";
+import Pricing from "./pages/Pricing";
+import Billing from "./pages/Billing";
+import Admin from "./pages/Admin";
 
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
@@ -54,6 +57,10 @@ const App = () => (
             <Route path="/dj/:slug" element={<PublicProfile />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+            <Route path="/billing/return" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
 
             {/* Aliases: common URL spellings resolve to the existing pages instead of 404 */}
             <Route path="/login" element={<Navigate to="/auth" replace />} />
