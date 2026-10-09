@@ -49,7 +49,7 @@ async function accessToken(): Promise<string> {
   return (JSON.parse(text) as { access_token: string }).access_token;
 }
 
-async function paypalRequest<T>(
+export async function paypalRequest<T>(
   path: string,
   method: "GET" | "POST",
   body?: unknown,
@@ -174,6 +174,11 @@ export const paypalPaymentProvider: PaymentProvider = {
       eventType: event.event_type,
       raw: event,
     };
+
+    // JogBook's own products are verified by the billing function, not the booking ledger.
+    if (typeof paymentId === "string" && paymentId.startsWith("billing:")) {
+      return { ...base, kind: "unhandled" };
+    }
 
     switch (event.event_type) {
       case "CHECKOUT.ORDER.APPROVED":

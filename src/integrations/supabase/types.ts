@@ -14,6 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity: string
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity: string
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string
+          entity_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      billing_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          paid_at: string | null
+          paypal_capture_id: string | null
+          paypal_order_id: string | null
+          product_code: string
+          refund_amount: number | null
+          refunded_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency: string
+          failure_reason?: string | null
+          id?: string
+          paid_at?: string | null
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          product_code: string
+          refund_amount?: number | null
+          refunded_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          paid_at?: string | null
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          product_code?: string
+          refund_amount?: number | null
+          refunded_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_orders_product_code_fkey"
+            columns: ["product_code"]
+            isOneToOne: false
+            referencedRelation: "billing_products"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      billing_products: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          description: string
+          kind: string
+          name: string
+          paypal_plan_id: string | null
+          price: number
+          purchasable: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string
+          kind: string
+          name: string
+          paypal_plan_id?: string | null
+          price: number
+          purchasable?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          kind?: string
+          name?: string
+          paypal_plan_id?: string | null
+          price?: number
+          purchasable?: boolean
+        }
+        Relationships: []
+      }
       booker_profiles: {
         Row: {
           company_or_event_type: string | null
@@ -427,6 +552,7 @@ export type Database = {
       platform_settings: {
         Row: {
           balance_due_days: number
+          billing_enabled: boolean
           commission_percent: number
           created_at: string
           crypto_payouts_enabled: boolean
@@ -444,6 +570,7 @@ export type Database = {
         }
         Insert: {
           balance_due_days?: number
+          billing_enabled?: boolean
           commission_percent?: number
           created_at?: string
           crypto_payouts_enabled?: boolean
@@ -461,6 +588,7 @@ export type Database = {
         }
         Update: {
           balance_due_days?: number
+          billing_enabled?: boolean
           commission_percent?: number
           created_at?: string
           crypto_payouts_enabled?: boolean
@@ -565,6 +693,88 @@ export type Database = {
         }
         Relationships: []
       }
+      service_requests: {
+        Row: {
+          admin_notes: string
+          created_at: string
+          details: string
+          id: string
+          order_id: string | null
+          product_code: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string
+          created_at?: string
+          details?: string
+          id?: string
+          order_id?: string | null
+          product_code: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string
+          created_at?: string
+          details?: string
+          id?: string
+          order_id?: string | null
+          product_code?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "billing_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          order_id: string | null
+          status: string
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          order_id?: string | null
+          status?: string
+          subject: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          order_id?: string | null
+          status?: string
+          subject?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "billing_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -632,6 +842,7 @@ export type Database = {
         Args: never
         Returns: {
           balance_due_days: number
+          billing_enabled: boolean
           commission_percent: number
           created_at: string
           crypto_payouts_enabled: boolean
@@ -668,7 +879,7 @@ export type Database = {
       is_profile_owner: { Args: { profile_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "dj" | "booker"
+      app_role: "dj" | "booker" | "admin"
       booking_gig_state: "PENDING" | "CONFIRMED" | "GIG_COMPLETED" | "CANCELLED"
       booking_payment_state:
         | "UNPAID"
@@ -837,7 +1048,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["dj", "booker"],
+      app_role: ["dj", "booker", "admin"],
       booking_gig_state: ["PENDING", "CONFIRMED", "GIG_COMPLETED", "CANCELLED"],
       booking_payment_state: [
         "UNPAID",
