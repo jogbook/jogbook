@@ -49,7 +49,7 @@ async function accessToken(): Promise<string> {
   return (JSON.parse(text) as { access_token: string }).access_token;
 }
 
-async function paypalRequest<T>(
+export async function paypalRequest<T>(
   path: string,
   method: "GET" | "POST",
   body?: unknown,
