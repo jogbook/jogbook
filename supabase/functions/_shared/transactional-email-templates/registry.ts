@@ -18,6 +18,9 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  // Add templates here as they are created, e.g.:
-  // 'welcome': welcomeTemplate,
+  'order-receipt': orderReceipt,
+  'admin-new-order': adminNewOrder,
 }
+
+import { template as orderReceipt } from './order-receipt.tsx'
+import { template as adminNewOrder } from './admin-new-order.tsx'
