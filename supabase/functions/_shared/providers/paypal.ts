@@ -175,6 +175,11 @@ export const paypalPaymentProvider: PaymentProvider = {
       raw: event,
     };
 
+    // JogBook's own products are verified by the billing function, not the booking ledger.
+    if (typeof paymentId === "string" && paymentId.startsWith("billing:")) {
+      return { ...base, kind: "unhandled" };
+    }
+
     switch (event.event_type) {
       case "CHECKOUT.ORDER.APPROVED":
         // Buyer approved; capture the funds. PayPal then sends
