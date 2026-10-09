@@ -15,6 +15,7 @@ export function useUserRole() {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
+        .in("role", ["dj", "booker"])
         .maybeSingle();
       return (data?.role as UserRole) ?? null;
     },
